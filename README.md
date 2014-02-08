@@ -1,69 +1,72 @@
-# MaPHPReduce
 
-Please, see more information
-- The [Ignoring Files chapter][chapter] of the [Pro Git][progit] book.
-- The [Ignoring Files article][help] on the GitHub Help site.
-- The [gitignore(5)][man] manual page.
+MAPHPReduce
+------------
 
-[man]: http://git-scm.com/docs/gitignore
-[help]: https://help.github.com/articles/ignoring-files
-[chapter]: http://git-scm.com/book/en/Git-Basics-Recording-Changes-to-the-Repository#Ignoring-Files
-[progit]: http://git-scm.com/book
+## Synopsis
 
-## Folder structure
+A PHP implementation of [Map Reduce framework](http://en.wikipedia.org/wiki/MapReduce).
 
+## Code Example
 
-## Contributing guidelines
+    <?php
+    require 'vendor/autoload.php';
 
-We’d love you to help us improve this project. To help us keep this collection
-high quality, we request that contributions adhere to the following guidelines.
+    use MAPHPReduce\MAPHPReduce;
 
-- **Provide a link to the application or project’s homepage**. Unless it’s
-  extremely popular, there’s a chance the maintainers don’t know about or use
-  the language, framework, editor, app, or project your change applies to.
-  
-- **Provide links to documentation** supporting the change you’re making.
-  Current, canonical documentation mentioning the files being ignored is best.
-  If documentation isn’t available to support your change, do the best you can
-  to explain what the files being ignored are for.
-  
-- **Explain why you’re making a change**. Even if it seems self-evident, please
-  take a sentence or two to tell us why your change or addition should happen.
-  It’s especially helpful to articulate why this change applies to *everyone*
-  who works with the applicable technology, rather than just you or your team.
-  
-- **Please consider the scope of your change**. If your change specific to a
-  certain language or framework, then make sure the change is made to the
-  template for that language or framework, rather than to the template for an
-  editor, tool, or operating system.
+    $mpr = new MAPHPReduce();
+    $myTasks = array(1,2,3,4,5,6);
 
-- **Please only modify *one template* per pull request**. This helps keep pull
-  requests and feedback focused on a specific project or technology.
+    $mpr->setTasks($myTasks);
 
-In general, the more you can do to help us understand the change you’re making,
-the more likely we’ll be to accept your contribution quickly.
+    // We like closures, don't we ?
+    $mpr->map(function($myJob) {
+      return doMyjob($myJob); // set a reduced task
+    });
+    
+    // So we have now all the reduced tasks in $allMyTasks
+    $mpr->reduce(function($allmytasks) {
+      reduceIt($allmytasks);
+    });
 
-Please also understand that we can’t list every tool that ever existed.
-Our aim is to curate a collection of the *most common and helpful* templates,
-not to make sure we cover every project possible. If we choose not to
-include your language, tool, or project, it’s not because it’s not awesome.
+## Motivation
 
-## Contributing workflow
+Sometimes we have to work with a huge amount of data. 
+[Lately](http://en.wikipedia.org/wiki/Big_data), more and more, and it's just no possible to work sequentially these times. 
 
-Here’s how we suggest you go about proposing a change to this project:
+So, the intention is to make an agile and encapsulated way to split a task in several child subtasks in parallel.
 
-1. [Fork this project][fork] to your account.
-2. [Create a branch][branch] for the change you intend to make.
-3. Make your changes to your fork.
-4. [Send a pull request][pr] from your fork’s branch to our `master` branch.
+## Installation (Composer)
 
-Using the web-based interface to make changes is fine too, and will help you
-by automatically forking the project and prompting to send a pull request too.
+1. Clone the repo.
+2. Create composer.json file the following content:
+    {
+        "autoload": {
+            "psr-0": {"MAPHPReduce": "src/"}
+        }
+    }
+3. Run "composer update" in your project folder.
+4. See the `Usage` or `Code example` sections.
+5. Enjoy!.
 
-[fork]: http://help.github.com/forking/
-[branch]: https://help.github.com/articles/creating-and-deleting-branches-within-your-repository
-[pr]: http://help.github.com/pull-requests/
+## API Reference
+
+By the moment, there is just a few methods to work with:
+
+    setTasks(array $tasks)
+    map(Closure $fn)
+    reduce(Closure $fn)
+
+But in order to keep it agile, this won't change very much.
+
+## Tests
+
+Well, there is no tests yet !! It's a thing one can contribute.
+See more about this [here](http://kpayne.me/2012/01/17/how-to-unit-test-fork/)
+
+## Contributors
+Please, feel free to colaborate. Fork the project and check [issues][2].
+We still have so much work ahead!.
 
 ## License
 
-[MIT](./LICENSE).
+MIT
