@@ -5,10 +5,10 @@ namespace MAPHPReduce;
 class MAPHPReduce 
 {
 
-  // @array $tasks
-  private $tasks;
+  private $tasks = array();
   private $reducedTasks = array();
   private static $numWorkers = 0;
+  private $pids = array();
 
   // @Closure $tasks
   private $mapFn;
@@ -38,7 +38,7 @@ class MAPHPReduce
 
     $myPid = getmypid();
     $pidChild = pcntl_fork();
-    var_dump($pidChild);                                                                          
+                                                                              
     switch ($pidChild) {
       case -1:
         throw new Exception("Error Forking process", 1);
@@ -66,6 +66,12 @@ class MAPHPReduce
           pcntl_waitpid($pidChild, $status);
         break;
       default:
+    }
+  }
+
+  private function waitForMyChilds() {
+    while($this->pids) {
+      pcntl_waitpid(array_shift($this->pids), $status);
     }
   }
 
