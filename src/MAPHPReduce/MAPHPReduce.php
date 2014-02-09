@@ -10,7 +10,7 @@ class MAPHPReduce
   private $numWorkers = 0;
   private $pids = array();
 
-  // @Closure $tasks
+  // @Closure $map fn
   private $mapFn;
   private $howToSplitThem;
 
@@ -39,7 +39,7 @@ class MAPHPReduce
 
     $myPid = getmypid();
     $pidChild = pcntl_fork();
-    //var_dump($pidChild);                                                                          
+                                                                    
     switch ($pidChild) {
       case -1:
         throw new Exception("Error Forking process", 1);
@@ -59,15 +59,12 @@ class MAPHPReduce
           if ($this->numWorkers < $this->howToSplitThem) {
             $this->splitTasks();
           }  
- 
+          
         break;
 
       default:
           echo "Im the Father, yeah !\n";
-          exit;
-          pcntl_waitpid($pidChild, $status);
-        break;
-      default:
+          var_dump(pcntl_waitpid($pidChild, $status));
     }
   }
 
@@ -75,8 +72,8 @@ class MAPHPReduce
   {
     $taskLength = count($this->tasks) / $this->howToSplitThem;
     $offset = $numWorker * $taskLength;
-    $task = array_slice($this->tasks, $offset, $taskLength);
-    return $task; 
+    
+    return array_slice($this->tasks, $offset, $taskLength); 
   }
 
   private function waitForMyChilds() 

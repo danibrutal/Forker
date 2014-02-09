@@ -6,7 +6,7 @@ use MAPHPReduce\MAPHPReduce;
 $mpr = new MAPHPReduce();
 $myTasks = array(1,2,3,4,5,6);
 
-$mpr->setTasks($myTasks, 3);
+$mpr->setTasks($myTasks, 6);
 
 $mpr->map(function($myJob) {
 
