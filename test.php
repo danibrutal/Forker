@@ -6,15 +6,16 @@ use MAPHPReduce\MAPHPReduce;
 $mpr = new MAPHPReduce();
 $myTasks = array(1,2,3,4,5,6);
 
-$mpr->setTasks($myTasks);
+$mpr->setTasks($myTasks, 3);
 
 $mpr->map(function($myJob) {
-  //doMyjob($myJob)
-  //var_dump($myJob);
-  echo "hola desde childs\n";
+
+  //echo "hola desde childs\n";
+  var_dump($myJob);
   return array('2');
 });
 
 $mpr->reduce(function($allmytasks) {
   //var_dump($allmytasks);
+  echo 'reducing';
 });

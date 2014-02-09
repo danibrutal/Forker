@@ -7,7 +7,7 @@ class MAPHPReduce
 
   private $tasks = array();
   private $reducedTasks = array();
-  private static $numWorkers = 0;
+  private $numWorkers = 0;
   private $pids = array();
 
   // @Closure $tasks
@@ -25,6 +25,7 @@ class MAPHPReduce
   {
     $this->mapFn = $map;
     $this->splitTasks();
+    
     return $this;
   }
 
@@ -38,7 +39,7 @@ class MAPHPReduce
 
     $myPid = getmypid();
     $pidChild = pcntl_fork();
-                                                                              
+    //var_dump($pidChild);                                                                          
     switch ($pidChild) {
       case -1:
         throw new Exception("Error Forking process", 1);
@@ -46,12 +47,13 @@ class MAPHPReduce
       case 0:
           
           // Child's time
+          $myTask = $this->giveMeMyTask($this->numWorkers);
+          
           $this->numWorkers++;
-          //$myTasks = array_slice($this->tasks, offset);
 
           $this->reducedTasks = array_merge(
             $this->reducedTasks,
-            $this->getReducedTask(call_user_func($this->mapFn, $this->tasks))
+            $this->getReducedTask(call_user_func($this->mapFn, $myTask))
           );
 
           if ($this->numWorkers < $this->howToSplitThem) {
@@ -61,15 +63,24 @@ class MAPHPReduce
         break;
 
       default:
-          var_dump($pidChild);
           echo "Im the Father, yeah !\n";
+          exit;
           pcntl_waitpid($pidChild, $status);
         break;
       default:
     }
   }
 
-  private function waitForMyChilds() {
+  private function giveMeMyTask($numWorker) 
+  {
+    $taskLength = count($this->tasks) / $this->howToSplitThem;
+    $offset = $numWorker * $taskLength;
+    $task = array_slice($this->tasks, $offset, $taskLength);
+    return $task; 
+  }
+
+  private function waitForMyChilds() 
+  {
     while($this->pids) {
       pcntl_waitpid(array_shift($this->pids), $status);
     }
@@ -90,9 +101,10 @@ class MAPHPReduce
    * @array $tasks
    * @return MAPHPReduce
    */
-  public function setTasks(array $tasks)
+  public function setTasks(array $tasks, $numTasks = 4)
   {
     $this->tasks = $tasks;
+    $this->howToSplitThem = is_numeric($numTasks) ? $numTasks : 4;
 
     return $this;
   }

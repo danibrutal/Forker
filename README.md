@@ -52,7 +52,7 @@ So, the intention is to make an agile and encapsulated way to split a task in se
 
 By the moment, there is just a few methods to work with:
 
-    setTasks(array $tasks)
+    setTasks(array $tasks, $numSubTasks = 4)
     map(Closure $fn)
     reduce(Closure $fn)
 
