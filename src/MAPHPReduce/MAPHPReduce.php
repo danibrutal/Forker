@@ -2,22 +2,30 @@
 
 namespace MAPHPReduce;
 
+use MAPHPReduce\Storage\MAPHPReduceStorage;
+
 class MAPHPReduce 
 {
+
+  private $storeSystem = null;
 
   private $tasks = array();
   private $reducedTasks = array();
   private $numWorkers = 0;
-  private $children = 0;
 
   // @Closure $map fn
   private $mapFn;
-  private $howToSplitThem;
+  private $numberOfTasks;
+
+  public function setStore(MAPHPReduceStorage $storeSystem) 
+  {
+    $this->storeSystem = $storeSystem;
+  }
 
   public function __construct(array $tasks = array(), $numTasks = 4) 
   {
     $this->tasks = $tasks;
-    $this->howToSplitThem = is_numeric($numTasks) ? $numTasks : 4;
+    $this->numberOfTasks = is_numeric($numTasks) ? $numTasks : 4;
   }
 
   // we like Closures, don't we?
@@ -31,10 +39,7 @@ class MAPHPReduce
 
   public function reduce(\Closure $reduce) 
   {
-    
-    var_dump($this->children);
-    if ($this->numWorkers == $this->howToSplitThem) {
-      var_dump($this->children);
+    if ($this->numWorkers == $this->numberOfTasks) {
       call_user_func($reduce, $this->reducedTasks);
     }
 
@@ -52,8 +57,7 @@ class MAPHPReduce
 
       case 0: // Child's time
 
-          $myTask = $this->giveMeMyTask($this->numWorkers);
-          
+          $myTask = $this->giveMeMyTask($this->numWorkers);          
           $this->numWorkers++;
 
           $this->reducedTasks = array_merge(
@@ -61,7 +65,7 @@ class MAPHPReduce
             $this->getReducedTask(call_user_func($this->mapFn, $myTask))
           );
 
-          if ($this->numWorkers < $this->howToSplitThem) {
+          if ($this->numWorkers < $this->numberOfTasks) {
             $this->splitTasks();
           }  
           
@@ -70,21 +74,21 @@ class MAPHPReduce
       default:
           
           if (pcntl_waitpid($pidChild, $status) > 0 ) {
-              $this->children--;
+              //$this->children--;
           }
     }
   }
 
   private function giveMeMyTask($numWorker) 
   {
-    $taskLength = count($this->tasks) / $this->howToSplitThem;
+    $taskLength = count($this->tasks) / $this->numberOfTasks;
     $offset = $numWorker * $taskLength;
     
     return array_slice($this->tasks, $offset, $taskLength); 
   }
 
   private function isThereAnyChild() {
-    return count($this->pids) < $this->howToSplitThem;
+    return count($this->pids) < $this->numberOfTasks;
   }
 
   /**
@@ -105,7 +109,7 @@ class MAPHPReduce
   public function setTasks(array $tasks, $numTasks = 4)
   {
     $this->tasks = $tasks;
-    $this->howToSplitThem = is_numeric($numTasks) ? $numTasks : 4;
+    $this->numberOfTasks = is_numeric($numTasks) ? $numTasks : 4;
 
     return $this;
   }
