@@ -17,7 +17,7 @@ class MAPHPReduce
   private $mapFn;
   private $numberOfTasks;
 
-  public function setStore(MAPHPReduceStorage $storeSystem) 
+  public function setStoreSystem(MAPHPReduceStorage $storeSystem) 
   {
     $this->storeSystem = $storeSystem;
   }
@@ -40,7 +40,7 @@ class MAPHPReduce
   public function reduce(\Closure $reduce) 
   {
     if ($this->numWorkers == $this->numberOfTasks) {
-      call_user_func($reduce, $this->reducedTasks);
+      call_user_func($reduce, $this->storeSystem->getReducedTasks());
     }
 
   }
@@ -60,10 +60,19 @@ class MAPHPReduce
           $myTask = $this->giveMeMyTask($this->numWorkers);          
           $this->numWorkers++;
 
+            /*
           $this->reducedTasks = array_merge(
             $this->reducedTasks,
-            $this->getReducedTask(call_user_func($this->mapFn, $myTask))
-          );
+            
+            $this->getReducedTask(call_user_func(
+              $this->mapFn,
+              $myTask,
+              $this->storeSystem
+              )
+            )
+          );*/
+
+          call_user_func( $this->mapFn, $myTask, $this->storeSystem);
 
           if ($this->numWorkers < $this->numberOfTasks) {
             $this->splitTasks();
@@ -85,21 +94,6 @@ class MAPHPReduce
     $offset = $numWorker * $taskLength;
     
     return array_slice($this->tasks, $offset, $taskLength); 
-  }
-
-  private function isThereAnyChild() {
-    return count($this->pids) < $this->numberOfTasks;
-  }
-
-  /**
-   * Prevent invalid returned values
-   */
-  private function getReducedTask($returnedTask = null) {
-    if (! is_array($returnedTask)) {
-      throw new \InvalidArgumentException("Returned value musht be array");
-    }
-
-    return $returnedTask;
   }
 
   /**

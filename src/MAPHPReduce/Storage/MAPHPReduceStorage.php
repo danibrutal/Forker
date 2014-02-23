@@ -11,4 +11,9 @@ interface MAPHPReduceStorage
    * @return bool
    */
   public function store($key, $value);
+
+  /**
+   * @return array $tasks
+   */
+  public function getReducedTasks();
 }
