@@ -1,4 +1,3 @@
-
 MAPHPReduce
 ------------
 
@@ -8,25 +7,27 @@ A PHP implementation of [Map Reduce framework](http://en.wikipedia.org/wiki/MapR
 
 ## Code Example
 
-    <?php
-    require 'vendor/autoload.php';
+```php
+<?php
+require 'vendor/autoload.php';
 
-    use MAPHPReduce\MAPHPReduce;
+use MAPHPReduce\MAPHPReduce;
 
-    $mpr = new MAPHPReduce();
-    $myTasks = array(1,2,3,4,5,6);
+$mpr = new MAPHPReduce();
+$myTasks = array(1,2,3,4,5,6);
 
-    $mpr->setTasks($myTasks);
+$mpr->setTasks($myTasks);
 
-    // We like closures, don't we ?
-    $mpr->map(function($myJob) {
-      return doMyjob($myJob); // set a reduced task
-    });
-    
-    // So we have now all the reduced tasks in $allMyTasks
-    $mpr->reduce(function($allmytasks) {
-      reduceIt($allmytasks);
-    });
+// We like closures, don't we ?
+$mpr->map(function($myJob) {
+  return doMyjob($myJob); // set a reduced task
+});
+
+// So we have now all the reduced tasks in $allMyTasks
+$mpr->reduce(function($allmytasks) {
+  reduceIt($allmytasks);
+});
+```
 
 ## Motivation
 
@@ -37,24 +38,25 @@ So, the intention is to make an agile and encapsulated way to split a task in se
 
 ## Installation (Composer)
 
-1. Clone the repo.
-2. Create composer.json file the following content:
+1. Create composer.json file the following content:
     {
         "autoload": {
             "psr-0": {"MAPHPReduce": "src/"}
         }
     }
-3. Run "composer update" in your project folder.
-4. See the `Usage` or `Code example` sections.
-5. Enjoy!.
+2. Run "composer update" in your project folder.
+3. See the `Usage` or `Code example` sections.
+4. Enjoy!.
 
 ## API Reference
 
 By the moment, there is just a few methods to work with:
 
-    setTasks(array $tasks, $numSubTasks = 4)
-    map(Closure $fn)
-    reduce(Closure $fn)
+```php
+setTasks(array $tasks, $numSubTasks = 4)
+map(Closure $fn)
+reduce(Closure $fn)
+```
 
 But in order to keep it agile, this won't change very much.
 
