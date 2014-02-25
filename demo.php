@@ -1,4 +1,8 @@
 <?php
+/**
+ * Example : 
+ * Summation of a list of numbers
+ */
 require 'vendor/autoload.php';
 
 use MAPHPReduce\MAPHPReduce;
@@ -10,14 +14,22 @@ $mpr->setStoreSystem(new ArrayStorage);
 
 $myTasks = array(1,2,3,4,5,6);
 
-$mpr->setTasks($myTasks, 3);
+$numberOfSubTasks = 3;
 
+$mpr->setTasks($myTasks, $numberOfSubTasks);
+
+// My job here is [1,2] , [3,4] , [5,6]
+// depends on child
 $mpr->map(function($myJob, $emit) {
   $emit->store(1, array_sum($myJob));
 });
 
 $mpr->reduce(function($allmytasks) {
-  var_dump($allmytasks);
-  var_dump(array_sum($allmytasks));
+  $total = 0;
 
+  foreach($allmytasks as $subTask) {
+    $total += getValueFromTask($subTask);
+  }
+
+  return $total;
 });
