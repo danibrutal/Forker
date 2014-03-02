@@ -18,6 +18,7 @@ $numberOfSubTasks = 3;
 $mpr = new MAPHPReduce($numberOfSubTasks);
 $mpr->setStoreSystem($storageSystem);
 
+// My job here is [1,2] , [3,4] , [5,6]
 $mpr->map(function($myJob) {
   var_dump($myJob);
   return array(
