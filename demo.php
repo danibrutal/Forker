@@ -1,35 +1,31 @@
 <?php
-/**
- * Example : 
- * Summation of a list of numbers
- */
 require 'vendor/autoload.php';
 
 use MAPHPReduce\MAPHPReduce;
 use MAPHPReduce\Storage\ArrayStorage;
 
-$mpr = new MAPHPReduce();
+$myTasks = array(
+  '0'=>array(1,2),
+  '1'=>array(3,4),
+  '2'=>array(5,6)
+);
 
-$mpr->setStoreSystem(new ArrayStorage);
-
-$myTasks = array(1,2,3,4,5,6);
+// a way to keep our data
+$storageSystem = new ArrayStorage($myTasks);
 
 $numberOfSubTasks = 3;
 
-$mpr->setTasks($myTasks, $numberOfSubTasks);
+$mpr = new MAPHPReduce($numberOfSubTasks);
+$mpr->setStoreSystem($storageSystem);
 
-// My job here is [1,2] , [3,4] , [5,6]
-// depends on child
-$mpr->map(function($myJob, $emit) {
-  $emit->store(1, array_sum($myJob));
+$mpr->map(function($myJob) {
+  var_dump($myJob);
+  return array(
+    array_sum($myJob)
+  );
 });
 
 $mpr->reduce(function($allmytasks) {
-  $total = 0;
-
-  foreach($allmytasks as $subTask) {
-    $total += getValueFromTask($subTask);
-  }
-
-  return $total;
+  var_dump($allmytasks);
+  var_dump(array_sum($allmytasks));
 });
