@@ -18,7 +18,7 @@ class ArrayStorage implements MAPHPReduceStorage
 
   public function giveMeMyTask($taskKey) 
   {
-    if (array_key_exists($taskKey, $this->tasks_db) === FALSE) {
+    if (! isset($this->tasks_db[$taskKey])) {
 
       throw new \InvalidArgumentException(
         "{$taskKey} has not been defined in " . __CLASS__ . " tasks"

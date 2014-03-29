@@ -20,7 +20,6 @@ class MAPHPReduce
   private $mapFn;
   private $numberOfTasks;
 
-
   public function __construct($numTasks = 4) 
   {
     $this->numberOfTasks = is_numeric($numTasks) ? $numTasks : 4;
@@ -37,10 +36,14 @@ class MAPHPReduce
 
   public function reduce(\Closure $reduce) 
   {
+
+    $this->waitForMyChildren();
+
     call_user_func(
       $reduce, 
       $this->storageSystem->getReducedTasks()
     );
+
   }
 
   private function splitTasks() 
@@ -56,12 +59,15 @@ class MAPHPReduce
 
       case 0: // Child's time
 
-          $myTask = $this->storageSystem->giveMeMyTask($this->numWorkers - 1);          
+          $key = $this->numWorkers - 1;
+          $myTask = $this->storageSystem->giveMeMyTask($key);          
 
-          $this->reducedTasks = array_merge(
-            $this->reducedTasks,            
-            call_user_func($this->mapFn, $myTask)
-          );
+          $reducedTask = call_user_func($this->mapFn, $myTask);
+
+          $this->storageSystem->store(
+            $key,
+            $reducedTask              
+          );            
 
           $this->imDoneHere($this->numWorkers); 
           
@@ -72,8 +78,6 @@ class MAPHPReduce
         if ($this->numWorkers < $this->numberOfTasks) {
           $this->splitTasks();
         } 
-
-        $this->waitForMyChildren();
         
     }
   }
