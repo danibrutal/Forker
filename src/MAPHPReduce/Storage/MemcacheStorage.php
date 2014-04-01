@@ -25,9 +25,11 @@ class MemcacheStorage implements MAPHPReduceStorage
     $this->tasks_db = $tasks;
     $this->cache = new \Memcache;
 
-    if (! $this->cache->connect(self::MEM_HOST)) {
+    if (! $this->cache->addServer(self::MEM_HOST, 11211, false)) {
       throw new \Exception("Error in ". __CLASS__ ." trying to connect to " . self::MEM_HOST, 1);
     }
+
+    $this->cleanTasksCache();
 
     // We set here the tasks set
     $stored = $this->cache->set(
@@ -57,7 +59,8 @@ class MemcacheStorage implements MAPHPReduceStorage
   public function store($key, $value)
   {
 
-    $this->cache->connect(self::MEM_HOST);
+    $this->cache->addServer(self::MEM_HOST, 11211, false);
+
     $hash_key = $key + 1;
 
     // we set here the task itself indexed by key
@@ -66,10 +69,10 @@ class MemcacheStorage implements MAPHPReduceStorage
       // And we add the key to the queue
       $reduced = $this->getReducedTasksFromCache();
       $reduced[] = $hash_key;
-      $this->cache->set(self::CACHE_REDUCED_KEY, $reduced);
+      $this->cache->set(self::CACHE_REDUCED_KEY, $reduced);  
+      
     }
 
-    $this->cache->close();
   }
 
   /**
@@ -79,15 +82,10 @@ class MemcacheStorage implements MAPHPReduceStorage
   public function giveMeMyTask($taskKey) 
   {
 
-    while (true) {
-      $this->cache->connect(self::MEM_HOST);
+    $this->cache->addServer(self::MEM_HOST, 11211, false);
 
-      if ($allTasks = $this->cache->get(self::CACHE_KEY)) {
-        break;
-      }
-    }
+    $allTasks = $this->cache->get(self::CACHE_KEY);
 
-    $this->cache->close();
     return $allTasks[$taskKey];
   }
 

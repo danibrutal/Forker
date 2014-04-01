@@ -15,6 +15,7 @@ class MAPHPReduce
 
   private $reducedTasks = array();
   private $numWorkers = 0;
+  private $lock = '/tmp/foo';
 
   // @Closure $map fn
   private $mapFn;
@@ -58,6 +59,13 @@ class MAPHPReduce
         break;
 
       case 0: // Child's time
+          
+          while(is_file($this->lock)) {
+            clearstatcache();
+            usleep(150 * $this->numWorkers);
+          }
+
+          touch($this->lock);
 
           $key = $this->numWorkers - 1;
           $myTask = $this->storageSystem->giveMeMyTask($key);          
@@ -68,6 +76,8 @@ class MAPHPReduce
             $key,
             $reducedTask              
           );            
+
+          unlink($this->lock);
 
           $this->imDoneHere($this->numWorkers); 
           
@@ -100,6 +110,7 @@ class MAPHPReduce
    **/
   private function imDoneHere($key = 'some key') 
   {
+    usleep(5);
     exit($key);
   }
 

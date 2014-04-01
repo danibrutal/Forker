@@ -15,10 +15,7 @@ $myTasks = array(
 
 // a way to keep our data
 $storageSystem = new MemcacheStorage($myTasks);
-//var_dump($storageSystem->cleanTasksCache());
-//var_dump($storageSystem->getReducedTasks());
 
-//exit;
 $numberOfSubTasks = 3;
 
 $mpr = new MAPHPReduce($numberOfSubTasks);
