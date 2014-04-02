@@ -13,9 +13,10 @@ class MAPHPReduce
    */
   private $storageSystem = null;
 
-  private $reducedTasks = array();
   private $numWorkers = 0;
-  private $lock = '/tmp/foo';
+
+  private $semKey = '123456';
+  private $semResource = null;
 
   // @Closure $map fn
   private $mapFn;
@@ -37,14 +38,8 @@ class MAPHPReduce
 
   public function reduce(\Closure $reduce) 
   {
-
     $this->waitForMyChildren();
-
-    call_user_func(
-      $reduce, 
-      $this->storageSystem->getReducedTasks()
-    );
-
+    $reduce( $this->storageSystem->getReducedTasks() );
   }
 
   private function splitTasks() 
@@ -60,24 +55,14 @@ class MAPHPReduce
 
       case 0: // Child's time
           
-          while(is_file($this->lock)) {
-            clearstatcache();
-            usleep(150 * $this->numWorkers);
-          }
-
-          touch($this->lock);
+          $this->lockIt();
 
           $key = $this->numWorkers - 1;
           $myTask = $this->storageSystem->giveMeMyTask($key);          
-
           $reducedTask = call_user_func($this->mapFn, $myTask);
+          $this->storageSystem->store($key, $reducedTask);            
 
-          $this->storageSystem->store(
-            $key,
-            $reducedTask              
-          );            
-
-          unlink($this->lock);
+          $this->unLock();
 
           $this->imDoneHere($this->numWorkers); 
           
@@ -97,21 +82,25 @@ class MAPHPReduce
     $this->storageSystem = $storeSystem;
   }
 
-  private function waitForMyChildren() 
+  private function lockIt()
   {
-    while (pcntl_waitpid(0, $status) != -1) {
-      $status = pcntl_wexitstatus($status);
-      echo "Child $status completed\n";
-    }
+    $this->semResource = sem_get($this->semKey);
+    sem_acquire($this->semResource);
   }
 
-  /**
-   *
-   **/
-  private function imDoneHere($key = 'some key') 
+  private function unLock()
   {
-    usleep(5);
-    exit($key);
+    sem_release($this->semResource); 
+  }
+
+  private function waitForMyChildren() 
+  {
+    while (pcntl_waitpid(0, $status) != -1);
+  }
+
+  private function imDoneHere() 
+  {
+    exit;
   }
 
 }
