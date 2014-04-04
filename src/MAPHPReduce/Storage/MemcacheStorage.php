@@ -5,7 +5,7 @@ namespace MAPHPReduce\Storage;
 
 use MAPHPReduce\Exception\StorageException;
 
-class MemcacheStorage implements MAPHPReduceStorage
+class MemcacheStorage implements StorageInterface
 {
 
   const CACHE_KEY               = "hola_";

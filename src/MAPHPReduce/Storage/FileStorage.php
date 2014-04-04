@@ -2,7 +2,7 @@
 
 namespace MAPHPReduce\Storage;
 
-class FileStorage implements MAPHPReduceStorage
+class FileStorage implements StorageInterface
 {
 
   public function store()

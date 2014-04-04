@@ -2,7 +2,7 @@
 
 namespace MAPHPReduce\Storage;
 
-interface MAPHPReduceStorage
+interface StorageInterface
 {
 
   /**

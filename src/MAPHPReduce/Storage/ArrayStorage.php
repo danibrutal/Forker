@@ -2,7 +2,7 @@
 
 namespace MAPHPReduce\Storage;
 
-class ArrayStorage implements MAPHPReduceStorage
+class ArrayStorage implements StorageInterface
 {
 
   private $tasks_db = array();

@@ -2,7 +2,7 @@
 
 namespace MAPHPReduce;
 
-use MAPHPReduce\Storage\MAPHPReduceStorage;
+use MAPHPReduce\Storage\StorageInterface;
 use MAPHPReduce\Exception\ForkingErrorException;
 
 class MAPHPReduce 
@@ -60,8 +60,8 @@ class MAPHPReduce
           $key = $this->numWorkers - 1;
           $myTask = $this->storageSystem->giveMeMyTask($key);          
           $reducedTask = call_user_func($this->mapFn, $myTask);
-          $this->storageSystem->store($key, $reducedTask);            
-
+          $this->storageSystem->store($key, $reducedTask);     
+                 
           $this->unLock();
 
           $this->imDoneHere($this->numWorkers); 
@@ -77,7 +77,7 @@ class MAPHPReduce
     }
   }
 
-  public function setStoreSystem(MAPHPReduceStorage $storeSystem) 
+  public function setStoreSystem(StorageInterface $storeSystem) 
   {
     $this->storageSystem = $storeSystem;
   }
