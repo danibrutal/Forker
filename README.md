@@ -9,39 +9,47 @@ A PHP implementation of [Map Reduce framework](http://en.wikipedia.org/wiki/MapR
 
 ```php
 <?php
-/**
- * Example : 
- * Summation of a list of numbers
- */
+/**************************************************
+ * Example: Sum of 10 firsts numbers in parallel
+ * Usage : php demo.sum.php 
+ **************************************************/
+require 'vendor/autoload.php';
+
 use MAPHPReduce\MAPHPReduce;
-use MAPHPReduce\Storage\ArrayStorage;
+use MAPHPReduce\Storage\MemcacheStorage;
+
+$myResult = 0;
 
 $myTasks = array(
-  '0'=>array(1,2),
-  '1'=>array(3,4),
-  '2'=>array(5,6)
+  0 => array(1,2),
+  1 => array(3,4),
+  2 => array(5,6),
+  3 => array(7,8),
+  4 => array(9,10),
 );
 
 // a way to keep our data
-$storageSystem = new ArrayStorage($myTasks);
+$storageSystem = new MemcacheStorage($myTasks);
 
-$numberOfSubTasks = 3;
+$numberOfSubTasks = 5;
 
 $mpr = new MAPHPReduce($numberOfSubTasks);
 $mpr->setStoreSystem($storageSystem);
 
 // My job here is [1,2] , [3,4] , [5,6]
 $mpr->map(function($myJob) {
-  var_dump($myJob);
-  return array(
-    array_sum($myJob)
-  );
+  return array_sum($myJob);
 });
 
-$mpr->reduce(function($allmytasks) {
-  var_dump($allmytasks);
-  var_dump(array_sum($allmytasks));
+$mpr->reduce(function($allmytasks) use(& $myResult) {
+  $myResult = array_sum($allmytasks);
 });
+
+$n = 10;
+$expected = ($n * ($n+1)) / 2;
+
+var_dump($myResult===$expected);
+echo "Oh my! We could retrieve the sum : {$myResult} \n";
 ```
 
 ## Motivation
