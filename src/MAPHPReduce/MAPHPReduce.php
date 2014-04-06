@@ -54,12 +54,13 @@ class MAPHPReduce
 
       case 0: // Child's time
           
-          $this->lockIt();
-          
           $myTask = $this->giveMeMyTask($this->numWorkers - 1);          
           $reducedTask = call_user_func($this->mapFn, $myTask);
-          $this->storageSystem->store(key($myTask), $reducedTask);     
-                 
+
+          $this->lockIt();
+
+          $this->storageSystem->store(key($myTask), $reducedTask);            
+          
           $this->unLock();
 
           $this->imDoneHere($this->numWorkers); 

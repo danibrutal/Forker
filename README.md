@@ -10,46 +10,81 @@ A PHP implementation of [Map Reduce framework](http://en.wikipedia.org/wiki/MapR
 ```php
 <?php
 /**************************************************
- * Example: Sum of 10 firsts numbers in parallel
- * Usage : php demo.sum.php 
+ * Example: Retrieving the city-weather using external api
+ * Usage  : php examples/demo.api.weather.php 
  **************************************************/
 require 'vendor/autoload.php';
 
 use MAPHPReduce\MAPHPReduce;
 use MAPHPReduce\Storage\MemcacheStorage;
 
-$myResult = 0;
+$allCitiesWeather = "";
+
+$urlApiWeather = "http://api.openweathermap.org/data/2.5/weather?q=%s&mode=xml";
 
 $myTasks = array(
-  0 => array(1,2),
-  1 => array(3,4),
-  2 => array(5,6),
-  3 => array(7,8),
-  4 => array(9,10),
+  'madrid'    => sprintf($urlApiWeather, 'Madrid'),
+  'london'    => sprintf($urlApiWeather, 'London'),
+  'new-york'  => sprintf($urlApiWeather, 'NewYork'),
+  'barcelona' => sprintf($urlApiWeather, 'barcelona'),
+  'lisboa'    => sprintf($urlApiWeather, 'lisboa'),
+  'iasi'      => sprintf($urlApiWeather, 'iasi'),
 );
 
 // a way to keep our data
-$storageSystem = new MemcacheStorage($myTasks);
+$storageSystem = new MemcacheStorage;
+$numberOfSubTasks = 6;
 
-$numberOfSubTasks = 5;
+$mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
 
-$mpr = new MAPHPReduce($numberOfSubTasks);
-$mpr->setStoreSystem($storageSystem);
+// This is called 3 times before doing reduce method
+// myJob here looks like this :
+// array(1) {
+//    ["madrid"]=>"http://api.openweathermap.org/data/2.5/weather?q=Madrid&mode=xml"
+// }
 
-// My job here is [1,2] , [3,4] , [5,6]
+$time_start = microtime(true);
+
 $mpr->map(function($myJob) {
-  return array_sum($myJob);
+  echo 'Retrieving weather in ' . key($myJob) . "\n";
+  return file_get_contents(current($myJob));
 });
 
-$mpr->reduce(function($allmytasks) use(& $myResult) {
-  $myResult = array_sum($allmytasks);
+$mpr->reduce(function($allmytasks) use(& $allCitiesWeather) {
+  $allCitiesWeather = $allmytasks;
 });
 
-$n = 10;
-$expected = ($n * ($n+1)) / 2;
+$time_end = microtime(true);
+$time = $time_end - $time_start;
 
-var_dump($myResult===$expected);
-echo "Oh my! We could retrieve the sum : {$myResult} \n";
+echo "it took {$time} seconds in paralel \n";
+
+$time_start = microtime(true);
+
+foreach($myTasks as $city => $url) {
+  echo 'Retrieving weather in ' . $city . "\n";
+  $allCitiesWeather[] = file_get_contents($url);
+}
+
+$time_end = microtime(true);
+$time = $time_end - $time_start;
+
+echo "it took {$time} seconds secuencially \n";
+
+// Retrieving weather in madrid
+Retrieving weather in london
+Retrieving weather in new-york
+Retrieving weather in barcelona
+Retrieving weather in lisboa
+Retrieving weather in iasi
+it took 0.34020018577576 seconds in paralel 
+Retrieving weather in madrid
+Retrieving weather in london
+Retrieving weather in new-york
+Retrieving weather in barcelona
+Retrieving weather in lisboa
+Retrieving weather in iasi
+it took 2.1834211349487 seconds secuencially
 ```
 
 ## Motivation
