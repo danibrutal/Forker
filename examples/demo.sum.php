@@ -21,15 +21,14 @@ $myTasks = array(
 );
 
 // a way to keep our data
-$storageSystem = new MemcacheStorage($myTasks);
+$storageSystem = new MemcacheStorage;
 
 $numberOfSubTasks = 5;
 
-$mpr = new MAPHPReduce($numberOfSubTasks);
-$mpr->setStoreSystem($storageSystem);
+$mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
 
 // My job here is [1,2] , [3,4] , [5,6]
-$mpr->map(function($myJob) {
+$mpr->map(function($myJob, $key) {
   return array_sum($myJob);
 });
 

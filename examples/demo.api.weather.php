@@ -15,12 +15,11 @@ $myTasks = array(
 );
 
 // a way to keep our data
-$storageSystem = new MemcacheStorage($myTasks);
+$storageSystem = new MemcacheStorage;
 
 $numberOfSubTasks = 3;
 
-$mpr = new MAPHPReduce($numberOfSubTasks);
-$mpr->setStoreSystem($storageSystem);
+$mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
 
 // This is called 3 times before doing reduce method
 $mpr->map(function($myJob) {

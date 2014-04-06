@@ -2,14 +2,12 @@
 
 namespace MAPHPReduce\Storage;
 
-
 use MAPHPReduce\Exception\StorageException;
 
 class MemcacheStorage implements StorageInterface
 {
 
-  const CACHE_KEY               = "hola_";
-  const CACHE_REDUCED_KEY       = __CLASS__;
+  const CACHE_REDUCED_KEY       = __NAMESPACE__;
   const MEM_HOST                = 'localhost';
   const CACHE_EXPIRATION_TIME   = '600';
 
@@ -20,9 +18,8 @@ class MemcacheStorage implements StorageInterface
    * @param array $tasks
    * @throws Exception
    */
-  public function __construct($tasks)
+  public function __construct()
   {
-    $this->tasks_db = $tasks;
     $this->cache = new \Memcache;
 
     if (! $this->cache->addServer(self::MEM_HOST, 11211, false)) {
@@ -30,24 +27,10 @@ class MemcacheStorage implements StorageInterface
     }
 
     $this->cleanTasksCache();
-
-    // We set here the tasks set
-    $stored = $this->cache->set(
-      self::CACHE_KEY,
-      $tasks,
-      0,
-      self::CACHE_EXPIRATION_TIME
-    );
-
-    if ($stored === FALSE) {
-      throw new StorageException("It was not possible to store all tasks in " . __CLASS__);
-    }
-
   }
 
   public function cleanTasksCache()
   {
-    $this->cache->delete(self::CACHE_KEY);
     $this->cache->delete(self::CACHE_REDUCED_KEY);
   }
 
@@ -73,20 +56,6 @@ class MemcacheStorage implements StorageInterface
       
     }
 
-  }
-
-  /**
-   * @param mixed $key
-   * @return array task
-   */
-  public function giveMeMyTask($taskKey) 
-  {
-
-    $this->cache->addServer(self::MEM_HOST, 11211, false);
-
-    $allTasks = $this->cache->get(self::CACHE_KEY);
-
-    return $allTasks[$taskKey];
   }
 
   public function getReducedTasks() 

@@ -1,5 +1,4 @@
 <?php
-
 namespace MAPHPReduce;
 
 use MAPHPReduce\Storage\StorageInterface;
@@ -8,11 +7,9 @@ use MAPHPReduce\Exception\ForkingErrorException;
 class MAPHPReduce 
 {
 
-  /**
-   * @var MAPHPReduceStorage
-   */
-  private $storageSystem = null;
+  private $tasks = array();
 
+  private $storageSystem = null;
   private $numWorkers = 0;
 
   private $semKey = '123456';
@@ -20,11 +17,13 @@ class MAPHPReduce
 
   // @Closure $map fn
   private $mapFn;
-  private $numberOfTasks;
+  private $numberOfTasks = 3;
 
-  public function __construct($numTasks = 4) 
+  public function __construct(StorageInterface $storeSystem, $tasks, $numTasks) 
   {
-    $this->numberOfTasks = is_numeric($numTasks) ? $numTasks : 4;
+    $this->storageSystem = $storeSystem;
+    $this->tasks = $tasks;
+    $this->numberOfTasks = is_numeric($numTasks) ? $numTasks : $this->numberOfTasks;
   }
 
   // we like Closures, don't we?
@@ -33,12 +32,12 @@ class MAPHPReduce
     $this->mapFn = $map;
     $this->splitTasks();
     
+    $this->waitForMyChildren();
     return $this;
   }
 
   public function reduce(\Closure $reduce) 
   {
-    $this->waitForMyChildren();
     $reduce( $this->storageSystem->getReducedTasks() );
   }
 
@@ -57,17 +56,17 @@ class MAPHPReduce
           
           $this->lockIt();
 
-          $key = $this->numWorkers - 1;
-          $myTask = $this->storageSystem->giveMeMyTask($key);          
-          $reducedTask = call_user_func($this->mapFn, $myTask);
+          
+          $myTask = $this->giveMeMyTask($this->numWorkers - 1);
+          $key = key($myTask);          
+          $reducedTask = call_user_func($this->mapFn, current($myTask), $key);
+
           $this->storageSystem->store($key, $reducedTask);     
                  
           $this->unLock();
 
           $this->imDoneHere($this->numWorkers); 
-          
         break;
-
       default: // i'm still the father
         
         if ($this->numWorkers < $this->numberOfTasks) {
@@ -77,9 +76,12 @@ class MAPHPReduce
     }
   }
 
-  public function setStoreSystem(StorageInterface $storeSystem) 
+  private function giveMeMyTask($numWorker) 
   {
-    $this->storageSystem = $storeSystem;
+    $taskLength = count($this->tasks) / $this->numberOfTasks;
+    $offset = $numWorker * $taskLength;
+    
+    return array_slice($this->tasks, $offset, $taskLength, true); 
   }
 
   private function lockIt()
