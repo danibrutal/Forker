@@ -1,6 +1,9 @@
 MAPHPReduce
 ------------
 
+[![Build Status](https://travis-ci.org/danibrutal/MAPHPReduce.svg?branch=master)](https://travis-ci.org/danibrutal/MAPHPReduce)
+
+
 ## Synopsis
 
 A PHP implementation of [Map Reduce framework](http://en.wikipedia.org/wiki/MapReduce).
