@@ -18,25 +18,32 @@ $myTasks = array(
   2 => array(5,6),
   3 => array(7,8),
   4 => array(9,10),
+  5 => array(11,12),
 );
 
 // a way to keep our data
 $storageSystem = new MemcacheStorage;
 
-$numberOfSubTasks = 5;
+$numberOfSubTasks = 3;
 
 $mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
 
-// My job here is [1,2] , [3,4] , [5,6]
-$mpr->map(function($myJob, $key) {
-  return array_sum($myJob);
+// My job here is [[1,2] , [3,4]] ,[[5,6],[7,8]]...not precisely in this order
+$mpr->map(function($myJobs) {
+  $total = 0;
+
+  foreach($myJobs as $job) {
+    $total += array_sum($job);
+  }
+
+  return $total;
 });
 
 $mpr->reduce(function($allmytasks) use(& $myResult) {
   $myResult = array_sum($allmytasks);
 });
 
-$n = 10;
+$n = 12;
 $expected = ($n * ($n+1)) / 2;
 
 var_dump($myResult===$expected);

@@ -19,7 +19,7 @@ class MAPHPReduce
   private $mapFn;
   private $numberOfTasks = 3;
 
-  public function __construct(StorageInterface $storeSystem, $tasks, $numTasks) 
+  public function __construct(StorageInterface $storeSystem, $tasks, $numTasks = 3) 
   {
     $this->storageSystem = $storeSystem;
     $this->tasks = $tasks;
@@ -55,13 +55,10 @@ class MAPHPReduce
       case 0: // Child's time
           
           $this->lockIt();
-
           
-          $myTask = $this->giveMeMyTask($this->numWorkers - 1);
-          $key = key($myTask);          
-          $reducedTask = call_user_func($this->mapFn, current($myTask), $key);
-
-          $this->storageSystem->store($key, $reducedTask);     
+          $myTask = $this->giveMeMyTask($this->numWorkers - 1);          
+          $reducedTask = call_user_func($this->mapFn, $myTask);
+          $this->storageSystem->store(key($myTask), $reducedTask);     
                  
           $this->unLock();
 

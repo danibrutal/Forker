@@ -43,8 +43,7 @@ class MemcacheStorage implements StorageInterface
   {
 
     $this->cache->addServer(self::MEM_HOST, 11211, false);
-
-    $hash_key = $key + 1;
+    $hash_key = $key;
 
     // we set here the task itself indexed by key
     if ($this->cache->set($hash_key, $value, 0, self::CACHE_EXPIRATION_TIME) ) {

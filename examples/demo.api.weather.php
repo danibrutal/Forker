@@ -9,9 +9,9 @@ $allCitiesWeather = "";
 $urlApiWeather = "http://api.openweathermap.org/data/2.5/weather?q=%s&mode=xml";
 
 $myTasks = array(
-  0 => sprintf($urlApiWeather, 'Madrid'),
-  1 => sprintf($urlApiWeather, 'London'),
-  2 => sprintf($urlApiWeather, 'NewYork')
+  'madrid'    => sprintf($urlApiWeather, 'Madrid'),
+  'london'    => sprintf($urlApiWeather, 'London'),
+  'new-york'  => sprintf($urlApiWeather, 'NewYork')
 );
 
 // a way to keep our data
@@ -22,10 +22,15 @@ $numberOfSubTasks = 3;
 $mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
 
 // This is called 3 times before doing reduce method
-$mpr->map(function($myJob) {
-  echo $myJob . "\n"; 
+// myJob here looks like this :
+// array(1) {
+//    ["madrid"]=>"http://api.openweathermap.org/data/2.5/weather?q=Madrid&mode=xml"
+// }
 
-  return file_get_contents($myJob);
+$mpr->map(function($myJob) {
+  echo 'Retrieving weather in ' . key($myJob) . "\n";
+  
+  return file_get_contents(current($myJob));
 });
 
 $mpr->reduce(function($allmytasks) use(& $allCitiesWeather) {
