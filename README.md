@@ -3,7 +3,6 @@ MAPHPReduce
 
 [![Build Status](https://travis-ci.org/danibrutal/MAPHPReduce.svg?branch=master)](https://travis-ci.org/danibrutal/MAPHPReduce)
 
-
 ## Synopsis
 
 A PHP implementation of [Map Reduce framework](http://en.wikipedia.org/wiki/MapReduce).
@@ -121,13 +120,29 @@ setTasks(array $tasks, $numSubTasks = 4)
 map(Closure $fn)
 reduce(Closure $fn)
 ```
-
-But in order to keep it agile, this won't change very much.
-
 ## Creating your own StorageSystem:
 We follow here a TDD aproach so is extremely easy to develop a new system:
 
-1º Creates a test
+1º Create your own storage system following the StorageSystem interface's signature:
+```
+  /**
+   * @param key
+   * @param value
+   * @return bool
+   */
+  public function store($key, $value);
+
+  /**
+   * @return array $tasks
+   */
+  public function getReducedTasks();
+
+  /**
+   * @return bool
+   */
+  public function cleanUp();
+```
+2º Creates a test
 ```
 <?php
 use MAPHPReduce\Storage\ArrayStorage;
@@ -143,7 +158,7 @@ class ArrayStorageTest extends BaseStorageTest
 ```
 Hard, huh?
 
-2º Then, type phpunit so you can see 3 errors to solve:
+3º Then, type phpunit so you can see 3 errors to solve:
 ```
 There were 3 failures:
 
@@ -156,7 +171,7 @@ Failed asserting that a NULL is not empty.
 3) ArrayStorageTest::testWeCanCleanUpAllPreviousTasks
 Failed asserting that a NULL is not empty.
 ```
-3º Just solve the errors. Create your implementation and you are done!
+4º Just solve the errors. Create your implementation and you are done!
 Easy and funny :)
 
 ## Contributors
