@@ -124,7 +124,7 @@ reduce(Closure $fn)
 We follow here a TDD aproach so is extremely easy to develop a new system:
 
 1º Create your own storage system following the StorageSystem interface's signature:
-```
+```php
   /**
    * @param key
    * @param value
@@ -143,7 +143,7 @@ We follow here a TDD aproach so is extremely easy to develop a new system:
   public function cleanUp();
 ```
 2º Creates a test
-```
+```php
 <?php
 use MAPHPReduce\Storage\ArrayStorage;
 require_once 'BaseStorageTest.php';
