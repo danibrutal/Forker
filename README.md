@@ -74,19 +74,22 @@ $time = $time_end - $time_start;
 
 echo "it took {$time} seconds secuencially \n";
 
-// Retrieving weather in madrid
-Retrieving weather in london
-Retrieving weather in new-york
-Retrieving weather in barcelona
-Retrieving weather in lisboa
-Retrieving weather in iasi
-it took 0.34020018577576 seconds in paralel 
 Retrieving weather in madrid
 Retrieving weather in london
 Retrieving weather in new-york
 Retrieving weather in barcelona
 Retrieving weather in lisboa
 Retrieving weather in iasi
+
+it took 0.34020018577576 seconds in paralel 
+
+Retrieving weather in madrid
+Retrieving weather in london
+Retrieving weather in new-york
+Retrieving weather in barcelona
+Retrieving weather in lisboa
+Retrieving weather in iasi
+
 it took 2.1834211349487 seconds secuencially
 ```
 
@@ -105,13 +108,7 @@ So, the intention is to make an agile and encapsulated way to split a task in se
 
 ## Installation (Composer)
 
-1. Create composer.json file the following content:
-    {
-        "autoload": {
-            "psr-0": {"MAPHPReduce": "src/"}
-        }
-    }
-2. Run "composer update" in your project folder.
+1. Run "composer update" in your project folder.
 3. See the `Usage` or `Code example` sections.
 4. Enjoy!.
 
@@ -127,10 +124,40 @@ reduce(Closure $fn)
 
 But in order to keep it agile, this won't change very much.
 
-## Tests
+## Creating your own StorageSystem:
+We follow here a TDD aproach so is extremely easy to develop a new system:
 
-Well, there is no tests yet !! It's a thing one can contribute.
-See more about this [here](http://kpayne.me/2012/01/17/how-to-unit-test-fork/)
+1º Creates a test
+```
+<?php
+use MAPHPReduce\Storage\ArrayStorage;
+require_once 'BaseStorageTest.php';
+
+class ArrayStorageTest extends BaseStorageTest
+{
+    protected function getSystemStorage()
+    {        
+        return new ArrayStorage();        
+    }
+}
+```
+Hard, huh?
+
+2º Then, type phpunit so you can see 3 errors to solve:
+```
+There were 3 failures:
+
+1) ArrayStorageTest::testWeCanSToreValues
+Failed asserting that false is true.
+
+2) ArrayStorageTest::testIcanGetAllMyReducedTasks
+Failed asserting that a NULL is not empty.
+
+3) ArrayStorageTest::testWeCanCleanUpAllPreviousTasks
+Failed asserting that a NULL is not empty.
+```
+3º Just solve the errors. Create your implementation and you are done!
+Easy and funny :)
 
 ## Contributors
 Please, feel free to colaborate. Fork the project and check [issues][2].
