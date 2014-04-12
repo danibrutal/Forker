@@ -12,9 +12,14 @@ interface StorageInterface
    */
   public function store($key, $value);
 
-
   /**
    * @return array $tasks
    */
   public function getReducedTasks();
+
+  /**
+   * @return bool
+   */
+  public function cleanUp();
+  
 }

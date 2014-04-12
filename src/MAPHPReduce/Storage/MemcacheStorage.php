@@ -29,9 +29,12 @@ class MemcacheStorage implements StorageInterface
     $this->cleanTasksCache();
   }
 
+  /**
+   * Cleans task's cache
+   */
   public function cleanTasksCache()
   {
-    $this->cache->delete(self::CACHE_REDUCED_KEY);
+    return $this->cache->delete(self::CACHE_REDUCED_KEY);
   }
 
   /**
@@ -62,6 +65,11 @@ class MemcacheStorage implements StorageInterface
     $reduced = $this->getReducedTasksFromCache();
 
     return $this->cache->get($reduced);
+  }
+
+  public function cleanUp()
+  {
+    return $this->cleanTasksCache(); 
   }
 
   /**

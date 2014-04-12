@@ -2,7 +2,7 @@
 
 use MAPHPReduce\Storage\ArrayStorage;
 
-require 'BaseStorageTest.php';
+require_once 'BaseStorageTest.php';
 
 class ArrayStorageTest extends BaseStorageTest
 {
