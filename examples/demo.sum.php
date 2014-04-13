@@ -4,6 +4,7 @@
  *
  * Example: Sum of 10 firsts numbers in parallel
  * Usage : php demo.sum.php 
+ * Storage: Memcache
  **************************************************/
 require 'vendor/autoload.php';
 

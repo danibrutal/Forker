@@ -2,12 +2,12 @@
 /**************************************************
  * Example: Retrieving the city-weather using external api
  * Usage  : php examples/demo.api.weather.php 
- * Storage: Memcache
+ * Storage: File
  **************************************************/
 require 'vendor/autoload.php';
 
 use MAPHPReduce\MAPHPReduce;
-use MAPHPReduce\Storage\MemcacheStorage;
+use MAPHPReduce\Storage\FileStorage;
 
 $allCitiesWeather = "";
 
@@ -23,16 +23,10 @@ $myTasks = array(
 );
 
 // a way to keep our data
-$storageSystem = new MemcacheStorage;
+$storageSystem = new FileStorage;
 $numberOfSubTasks = 6;
 
 $mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
-
-// This is called 3 times before doing reduce method
-// myJob here looks like this :
-// array(1) {
-//    ["madrid"]=>"http://api.openweathermap.org/data/2.5/weather?q=Madrid&mode=xml"
-// }
 
 $time_start = microtime(true);
 

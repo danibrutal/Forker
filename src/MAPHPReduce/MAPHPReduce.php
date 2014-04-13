@@ -19,7 +19,7 @@ class MAPHPReduce
   private $mapFn;
   private $numberOfTasks = 3;
 
-  public function __construct(StorageInterface $storeSystem, $tasks, $numTasks = 3) 
+  public function __construct(StorageInterface $storeSystem, array $tasks, $numTasks = 3) 
   {
     $this->storageSystem = $storeSystem;
     $this->tasks = $tasks;
