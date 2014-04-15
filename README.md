@@ -45,8 +45,6 @@ $mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
 //    ["madrid"]=>"http://api.openweathermap.org/data/2.5/weather?q=Madrid&mode=xml"
 // }
 
-$time_start = microtime(true);
-
 $mpr->map(function($myJob) {
   echo 'Retrieving weather in ' . key($myJob) . "\n";
   return file_get_contents(current($myJob));
@@ -56,42 +54,8 @@ $mpr->reduce(function($allmytasks) use(& $allCitiesWeather) {
   $allCitiesWeather = $allmytasks;
 });
 
-$time_end = microtime(true);
-$time = $time_end - $time_start;
-
-echo "it took {$time} seconds in paralel \n";
-
-$time_start = microtime(true);
-
-foreach($myTasks as $city => $url) {
-  echo 'Retrieving weather in ' . $city . "\n";
-  $allCitiesWeather[] = file_get_contents($url);
-}
-
-$time_end = microtime(true);
-$time = $time_end - $time_start;
-
-echo "it took {$time} seconds secuencially \n";
-
-Retrieving weather in madrid
-Retrieving weather in london
-Retrieving weather in new-york
-Retrieving weather in barcelona
-Retrieving weather in lisboa
-Retrieving weather in iasi
-
-it took 0.34020018577576 seconds in paralel 
-
-Retrieving weather in madrid
-Retrieving weather in london
-Retrieving weather in new-york
-Retrieving weather in barcelona
-Retrieving weather in lisboa
-Retrieving weather in iasi
-
-it took 2.1834211349487 seconds secuencially
+var_dump($allCitiesWeather);
 ```
-
 ## Motivation
 
 Sometimes we have to work with a huge amount of data. 
