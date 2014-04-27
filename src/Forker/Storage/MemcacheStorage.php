@@ -4,6 +4,10 @@ namespace Forker\Storage;
 
 use Forker\Exception\StorageException;
 
+/**
+ *
+ * @package Forker\Storage 
+ */
 class MemcacheStorage implements StorageInterface
 {
 

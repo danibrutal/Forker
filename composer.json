@@ -1,5 +1,23 @@
 {
+    "name": "danibrutal/Forker",
+    "description": "A structured , safe, and easiest way to perform tasks parallely in PHP",
+    "keywords": ["fork", "pcntl_fork", "parallel", "process", "tasks"],
+    "homepage": "http://github.com/danibrutal/Forker",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daniel Martinez",
+            "email": "danimartcas@hotmail.com",
+            "homepage": "http://testdouble.es",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
     "autoload": {
-        "psr-0": {"Forker": "src/"}
+        "psr-0": {
+          "Forker": "src"
+        }
     }
 }
