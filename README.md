@@ -1,5 +1,6 @@
 Forker
 ------------
+[![Build Status](https://travis-ci.org/danibrutal/Forker.svg?branch=master)](https://travis-ci.org/danibrutal/Forker)
 
 ## Synopsis
 
