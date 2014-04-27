@@ -6,8 +6,8 @@
  **************************************************/
 require 'vendor/autoload.php';
 
-use MAPHPReduce\MAPHPReduce;
-use MAPHPReduce\Storage\MemcacheStorage;
+use Forker\Forker;
+use Forker\Storage\MemcacheStorage;
 
 $allCitiesWeather = "";
 
@@ -26,7 +26,7 @@ $myTasks = array(
 $storageSystem = new MemcacheStorage;
 $numberOfSubTasks = 6;
 
-$mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
+$mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 // This is called 3 times before doing reduce method
 // myJob here looks like this :

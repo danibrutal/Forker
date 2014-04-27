@@ -1,6 +1,6 @@
 <?php
 
-namespace MAPHPReduce\Storage;
+namespace Forker\Storage;
 
 interface StorageInterface
 {
@@ -15,7 +15,7 @@ interface StorageInterface
   /**
    * @return array $tasks
    */
-  public function getReducedTasks();
+  public function getStoredTasks();
 
   /**
    * @return bool

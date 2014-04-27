@@ -1,6 +1,6 @@
 <?php
 
-use MAPHPReduce\Storage\ArrayStorage;
+use Forker\Storage\ArrayStorage;
 
 require_once 'BaseStorageTest.php';
 

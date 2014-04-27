@@ -1,11 +1,9 @@
-MAPHPReduce
+Forker
 ------------
-
-[![Build Status](https://travis-ci.org/danibrutal/MAPHPReduce.svg?branch=master)](https://travis-ci.org/danibrutal/MAPHPReduce)
 
 ## Synopsis
 
-A PHP implementation of [Map Reduce framework](http://en.wikipedia.org/wiki/MapReduce).
+A structured , safe, and easiest way to perform tasks parallely in PHP.
 
 ## Code Example
 
@@ -14,11 +12,12 @@ A PHP implementation of [Map Reduce framework](http://en.wikipedia.org/wiki/MapR
 /**************************************************
  * Example: Retrieving the city-weather using external api
  * Usage  : php examples/demo.api.weather.php 
+ * Storage: File
  **************************************************/
 require 'vendor/autoload.php';
 
-use MAPHPReduce\MAPHPReduce;
-use MAPHPReduce\Storage\MemcacheStorage;
+use Forker\Forker;
+use Forker\Storage\FileStorage;
 
 $allCitiesWeather = "";
 
@@ -34,17 +33,14 @@ $myTasks = array(
 );
 
 // a way to keep our data
-$storageSystem = new MemcacheStorage;
+$storageSystem = new FileStorage;
 $numberOfSubTasks = 6;
 
-$mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
+$mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
-// This is called 3 times before doing reduce method
-// myJob here looks like this :
-// array(1) {
-//    ["madrid"]=>"http://api.openweathermap.org/data/2.5/weather?q=Madrid&mode=xml"
-// }
+$time_start = microtime(true);
 
+// $myJob = 'madrid'=> 'http://api.openweathermap.org/data/2.5/weather?q=madrid&mode=xml'
 $mpr->map(function($myJob) {
   echo 'Retrieving weather in ' . key($myJob) . "\n";
   return file_get_contents(current($myJob));
@@ -109,7 +105,7 @@ We follow here a TDD aproach so is extremely easy to develop a new system:
 2º Creates a test
 ```php
 <?php
-use MAPHPReduce\Storage\ArrayStorage;
+use Forker\Storage\ArrayStorage;
 require_once 'BaseStorageTest.php';
 
 class ArrayStorageTest extends BaseStorageTest

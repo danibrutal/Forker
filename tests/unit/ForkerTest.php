@@ -1,9 +1,9 @@
 <?php
 
-use MAPHPReduce\MAPHPReduce;
-use MAPHPReduce\Storage\ArrayStorage;
+use Forker\Forker;
+use Forker\Storage\ArrayStorage;
 
-class MAPHPReduceTest extends PHPUnit_Framework_TestCase
+class ForkerTest extends PHPUnit_Framework_TestCase
 {
 
   private $splitter = null;
@@ -17,7 +17,7 @@ class MAPHPReduceTest extends PHPUnit_Framework_TestCase
 
     $storageSystem    = new ArrayStorage;
     $numberOfSubTasks = 4;
-    $this->splitter   = new MAPHPReduce($storageSystem, $this->tasks, $numberOfSubTasks);
+    $this->splitter   = new Forker($storageSystem, $this->tasks, $numberOfSubTasks);
   }
 
   public function testWeCanSendSubTasksForEachChild()
@@ -26,7 +26,7 @@ class MAPHPReduceTest extends PHPUnit_Framework_TestCase
     $numberOfSubTasks  = 4;
 
     $mockSplitter = $this->getMock(
-      'MAPHPReduce\MAPHPReduce', 
+      'Forker\Forker', 
       array('getChildProces', 'child', 'waitForMyChildren'),
       array($storageSystem, $this->tasks, $numberOfSubTasks)
     );
@@ -44,7 +44,7 @@ class MAPHPReduceTest extends PHPUnit_Framework_TestCase
     $numberOfSubTasks  = 4;
 
     $mockSplitter = $this->getMock(
-      'MAPHPReduce\MAPHPReduce', 
+      'Forker\Forker', 
       array('getChildProces', 'child', 'waitForMyChildren'),
       array($storageSystem, $this->tasks, $numberOfSubTasks)
     );

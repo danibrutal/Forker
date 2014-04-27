@@ -6,8 +6,8 @@
  **************************************************/
 require 'vendor/autoload.php';
 
-use MAPHPReduce\MAPHPReduce;
-use MAPHPReduce\Storage\FileStorage;
+use Forker\Forker;
+use Forker\Storage\FileStorage;
 
 $allCitiesWeather = "";
 
@@ -26,7 +26,7 @@ $myTasks = array(
 $storageSystem = new FileStorage;
 $numberOfSubTasks = 6;
 
-$mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
+$mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 $time_start = microtime(true);
 

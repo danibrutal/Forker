@@ -1,8 +1,8 @@
 <?php
 
-namespace MAPHPReduce\Storage;
+namespace Forker\Storage;
 
-use MAPHPReduce\Exception\StorageException;
+use Forker\Exception\StorageException;
 
 class MemcacheStorage implements StorageInterface
 {
@@ -52,7 +52,7 @@ class MemcacheStorage implements StorageInterface
     if ($this->cache->set($hash_key, $value, 0, self::CACHE_EXPIRATION_TIME) ) {
       
       // And we add the key to the queue
-      $reduced = $this->getReducedTasksFromCache();
+      $reduced = $this->getStoredTasksFromCache();
       $reduced[] = $hash_key;
       $this->cache->set(self::CACHE_REDUCED_KEY, $reduced);  
       
@@ -60,9 +60,9 @@ class MemcacheStorage implements StorageInterface
 
   }
 
-  public function getReducedTasks() 
+  public function getStoredTasks() 
   {
-    $reduced = $this->getReducedTasksFromCache();
+    $reduced = $this->getStoredTasksFromCache();
 
     return $this->cache->get($reduced);
   }
@@ -75,7 +75,7 @@ class MemcacheStorage implements StorageInterface
   /**
    * @return array 
    */
-  private function getReducedTasksFromCache()
+  private function getStoredTasksFromCache()
   {
     $r = $this->cache->get(self::CACHE_REDUCED_KEY);  
 

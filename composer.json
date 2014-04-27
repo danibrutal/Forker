@@ -1,5 +1,5 @@
 {
     "autoload": {
-        "psr-0": {"MAPHPReduce": "src/"}
+        "psr-0": {"Forker": "src/"}
     }
 }

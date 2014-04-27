@@ -1,10 +1,10 @@
 <?php
-namespace MAPHPReduce;
+namespace Forker;
 
-use MAPHPReduce\Storage\StorageInterface;
-use MAPHPReduce\Exception\ForkingErrorException;
+use Forker\Storage\StorageInterface;
+use Forker\Exception\ForkingErrorException;
 
-class MAPHPReduce 
+class Forker 
 {
 
   private $tasks = array();
@@ -47,7 +47,7 @@ class MAPHPReduce
 
   public function reduce(\Closure $reduce) 
   {
-    $reduce( $this->storageSystem->getReducedTasks() );
+    $reduce( $this->storageSystem->getStoredTasks() );
   }
 
   private function splitTasks() 

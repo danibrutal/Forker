@@ -1,6 +1,6 @@
 <?php
 
-namespace MAPHPReduce\Storage;
+namespace Forker\Storage;
 
 /**
  * A very simple implementation.
@@ -44,7 +44,7 @@ class FileStorage implements StorageInterface
   /**
    * @return array $tasks
    */
-  public function getReducedTasks()
+  public function getStoredTasks()
   {
     $reducedTasks = array();
    

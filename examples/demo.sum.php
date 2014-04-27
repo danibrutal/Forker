@@ -1,6 +1,6 @@
 <?php
 /**************************************************
- * [MAPHPReduce]
+ * [Forker]
  *
  * Example: Sum of 10 firsts numbers in parallel
  * Usage : php demo.sum.php 
@@ -8,8 +8,8 @@
  **************************************************/
 require 'vendor/autoload.php';
 
-use MAPHPReduce\MAPHPReduce;
-use MAPHPReduce\Storage\MemcacheStorage;
+use Forker\Forker;
+use Forker\Storage\MemcacheStorage;
 
 $myResult = 0;
 
@@ -27,7 +27,7 @@ $storageSystem = new MemcacheStorage;
 
 $numberOfSubTasks = 3;
 
-$mpr = new MAPHPReduce($storageSystem, $myTasks, $numberOfSubTasks);
+$mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 // My job here is [[1,2] , [3,4]] ,[[5,6],[7,8]]...not precisely in this order
 $mpr->map(function($myJobs) {

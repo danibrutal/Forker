@@ -1,6 +1,6 @@
 <?php
 
-use MAPHPReduce\Storage\ArrayStorage;
+use Forker\Storage\ArrayStorage;
 
 Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
 {
@@ -42,10 +42,10 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
     /**
      * It should be a way to retrieve all our stored tasks
      */
-    public function testIcanGetAllMyReducedTasks()
+    public function testIcanGetAllMyStoredTasks()
     {
 
-        $reducedTasks = $this->storageSystem->getReducedTasks();
+        $reducedTasks = $this->storageSystem->getStoredTasks();
         $expected = $this->tasks;
         
         $this->assertNotEmpty($reducedTasks);
@@ -55,11 +55,11 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
 
     public function testWeCanCleanUpAllPreviousTasks()
     {
-        $reducedTasks = $this->storageSystem->getReducedTasks();
+        $reducedTasks = $this->storageSystem->getStoredTasks();
         
         $this->assertNotEmpty($reducedTasks);
         $this->assertTrue($this->storageSystem->cleanUp());
-        $this->assertEmpty($this->storageSystem->getReducedTasks());
+        $this->assertEmpty($this->storageSystem->getStoredTasks());
     }
 
 }

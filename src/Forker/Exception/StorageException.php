@@ -1,6 +1,6 @@
 <?php
 
-namespace MAPHPReduce\Exception;
+namespace Forker\Exception;
 
 class StorageException extends \Exception
 {
