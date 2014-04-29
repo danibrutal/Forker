@@ -6,7 +6,7 @@ use Forker\Storage\ArrayStorage;
 class ForkerTest extends PHPUnit_Framework_TestCase
 {
 
-  private $splitter = null;
+  private $Forker = null;
   private $tasks    = array();
 
   public function setUp()
@@ -17,24 +17,69 @@ class ForkerTest extends PHPUnit_Framework_TestCase
 
     $storageSystem    = new ArrayStorage;
     $numberOfSubTasks = 4;
-    $this->splitter   = new Forker($storageSystem, $this->tasks, $numberOfSubTasks);
+    $this->Forker   = new Forker($storageSystem, $this->tasks, $numberOfSubTasks);
   }
 
+  /**
+   * @expectedException Forker\Exception\ForkingErrorException
+   */
+  public function testWeThrowExceptionIfForkingError()
+  {
+    $forkError = -1;
+
+    $mockForker = $this->getMock(
+      'Forker\Forker', 
+      array('getChildProces', 'child', 'waitForMyChildren'),
+      array(new ArrayStorage, array())
+    );
+
+    $mockForker->expects($this->exactly(1))
+                 ->method('getChildProces')
+                 ->will($this->returnValue($forkError));
+    
+    $mockForker->map(function($foo) {});
+  }
+
+ /**
+  * Each child should receive his task :)
+  */
   public function testWeCanSendSubTasksForEachChild()
   {
     $storageSystem     = new ArrayStorage;
     $numberOfSubTasks  = 4;
 
-    $mockSplitter = $this->getMock(
+    $mockForker = $this->getMock(
       'Forker\Forker', 
       array('getChildProces', 'child', 'waitForMyChildren'),
       array($storageSystem, $this->tasks, $numberOfSubTasks)
     );
 
-    $mockSplitter->expects($this->exactly(4))
+
+    $mockForker->expects($this->exactly(4))
                  ->method('child');
 
-    $mockSplitter->map(function($foo) {});
+    list($key,$value) = each($this->tasks);
+
+    $mockForker->expects($this->at(1))
+                 ->method('child')
+                 ->with(array($key=>$value));
+
+    list($key,$value) = each($this->tasks);
+    $mockForker->expects($this->at(3))
+                 ->method('child')
+                 ->with(array($key=>$value));
+
+    list($key,$value) = each($this->tasks);
+    $mockForker->expects($this->at(5))
+                 ->method('child')
+                 ->with(array($key=>$value));
+
+    list($key,$value) = each($this->tasks);
+    $mockForker->expects($this->at(7))
+                 ->method('child')
+                 ->with(array($key=>$value));
+
+    $mockForker->map(function($foo) {});
   }
 
   public function testWeCreateANewProcessForEachSubTask()
@@ -43,16 +88,16 @@ class ForkerTest extends PHPUnit_Framework_TestCase
     $childProcessValue = 7;
     $numberOfSubTasks  = 4;
 
-    $mockSplitter = $this->getMock(
+    $mockForker = $this->getMock(
       'Forker\Forker', 
       array('getChildProces', 'child', 'waitForMyChildren'),
       array($storageSystem, $this->tasks, $numberOfSubTasks)
     );
 
-    $mockSplitter->expects($this->exactly(4))
+    $mockForker->expects($this->exactly(4))
                  ->method('getChildProces')
                  ->will($this->returnValue($childProcessValue));
-    $mockSplitter->map(function($foo) {});
+    $mockForker->map(function($foo) {});
   }
 
   public function testWeCanCalculateSafeNumberOfWorkers()
@@ -65,7 +110,7 @@ class ForkerTest extends PHPUnit_Framework_TestCase
 
     $this->assertEquals(
       $expectedNumOfWorkers,
-      $this->splitter->calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
+      $this->Forker->calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
     );
 
     // If the number of sub tasks is a divisor of the number of tasks, let it
@@ -75,7 +120,7 @@ class ForkerTest extends PHPUnit_Framework_TestCase
 
     $this->assertEquals(
       $expectedNumOfWorkers,
-      $this->splitter->calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
+      $this->Forker->calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
     );
 
     // If the number is greater, then we let the number of subtasks
@@ -85,7 +130,7 @@ class ForkerTest extends PHPUnit_Framework_TestCase
 
     $this->assertEquals(
       $expectedNumOfWorkers,
-      $this->splitter->calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
+      $this->Forker->calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
     );
   }
 
@@ -99,7 +144,7 @@ class ForkerTest extends PHPUnit_Framework_TestCase
 
     $this->assertEquals(
       $expectedTask,
-      $this->splitter->giveMeMyTask($indexTask, $numberOfSubTasks)
+      $this->Forker->giveMeMyTask($indexTask, $numberOfSubTasks)
     );
   }
 }

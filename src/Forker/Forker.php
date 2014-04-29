@@ -62,7 +62,8 @@ class Forker
         break;
 
       case 0: // Child's time
-          $this->child($this->numWorkers - 1);
+          $childTask = $this->giveMeMyTask($this->numWorkers - 1, $this->numberOfTasks);
+          $this->child($childTask);
         break;        
     }
 
@@ -80,11 +81,10 @@ class Forker
   }
 
   /**
-   * @param int $indexTask
+   * @param array $myTask
    */
-  protected function child($indexTask)
-  {
-    $myTask = $this->giveMeMyTask($indexTask, $this->numberOfTasks);          
+  protected function child(array $myTask)
+  {          
     $reducedTask = call_user_func($this->mapFn, $myTask);
 
     $this->lockIt();
