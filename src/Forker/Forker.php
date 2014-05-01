@@ -7,13 +7,20 @@ use Forker\Exception\ForkingErrorException;
 class Forker 
 {
 
-  private $tasks = array();
+  const FORKING_ERROR = -1;
+  const CHILD_PROCESS = 0;
 
+  /**
+   * @var StorageInterface $storageSystem
+   */
   private $storageSystem = null;
+
+  private $tasks = array();
   private $numWorkers    = 0;
 
-  private $semKey      = '123456';
-  private $semResource = null;
+  // Semaphores
+  private $semKey        = '123456';
+  private $semResource   = null;
 
   // @Closure $map fn
   private $mapFn;
@@ -35,7 +42,10 @@ class Forker
     );
   }
 
-  // we like Closures, don't we?
+  /**
+   * @param \Clousure $map
+   * @return Forker $this
+   */
   public function map(\Closure $map) 
   {
     $this->mapFn = $map;
@@ -45,23 +55,29 @@ class Forker
     return $this;
   }
 
-  public function reduce(\Closure $reduce) 
+  /**
+   * @return array
+   */
+  public function fetch() 
   {
-    $reduce( $this->storageSystem->getStoredTasks() );
+    return $this->storageSystem->getStoredTasks();
   }
 
+  /**
+   * Copy the process recursively for each sub-task
+   *
+   */
   private function splitTasks() 
   {
 
     $this->numWorkers++;
                            
     switch ($this->getChildProces()) {
-      case -1:
-      
+      case self::FORKING_ERROR:
         throw new ForkingErrorException("Error Forking process", 1);
         break;
 
-      case 0: // Child's time
+      case self::CHILD_PROCESS:
           $childTask = $this->giveMeMyTask($this->numWorkers - 1, $this->numberOfTasks);
           $this->child($childTask);
         break;        
@@ -70,6 +86,7 @@ class Forker
     if ($this->numWorkers < $this->numberOfTasks) {
       $this->splitTasks();
     } 
+
   }
 
   /**
@@ -98,7 +115,7 @@ class Forker
 
   /**
    * We calculate here the next divisor
-   *
+   * @return int number of workers o subprocess
    */
   public function calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
   {
@@ -113,6 +130,11 @@ class Forker
     return $n;
   }
 
+  /**
+   * @param int $indexTask
+   * @param int $numberOfTasks
+   * @return array $task
+   */
   public function giveMeMyTask($indexTask, $numberOfTasks) 
   {
     $taskLength = floor(count($this->tasks) / $numberOfTasks);

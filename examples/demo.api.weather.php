@@ -41,9 +41,7 @@ $mpr->map(function($myJob) {
   return file_get_contents(current($myJob));
 });
 
-$mpr->reduce(function($allmytasks) use(& $allCitiesWeather) {
-  $allCitiesWeather = $allmytasks;
-});
+$allCitiesWeather = $mpr->fetch();
 
 $time_end = microtime(true);
 $time = $time_end - $time_start;

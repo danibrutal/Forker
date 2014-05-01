@@ -40,9 +40,7 @@ $mpr->map(function($myJobs) {
   return $total;
 });
 
-$mpr->reduce(function($allmytasks) use(& $myResult) {
-  $myResult = array_sum($allmytasks);
-});
+$myResult = array_sum($mpr->fetch());
 
 $n = 12;
 $expected = ($n * ($n+1)) / 2;
