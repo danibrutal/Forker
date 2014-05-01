@@ -10,7 +10,7 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {        
         $this->storageSystem = $this->getSystemStorage();
-        $this->storeAllTasks();
+        $this->storeAllTasks();        
     }
 
     public function tearDown()

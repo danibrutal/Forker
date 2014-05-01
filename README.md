@@ -66,21 +66,19 @@ This way both cooks can work together, at the same time, and we will have our di
 
 So, the intention is to make an agile and encapsulated way to split a task in several child subtasks in parallel.
 
-## Installation (Composer)
+## Install
 
-1. Run "composer update" in your project folder.
-3. See the `Usage` or `Code example` sections.
-4. Enjoy!.
+Using composer:
+```
+  "require": {
+        "danibrutal/forker": "dev-master"
+    }
+```
+
 
 ## API Reference
 
-By the moment, there is just a few methods to work with:
-
-```php
-setTasks(array $tasks, $numSubTasks = 4)
-map(Closure $fn)
-reduce(Closure $fn)
-```
+You can check the API out [here](http://testdouble.es/Forker/API/);
 ## Creating your own StorageSystem:
 We follow here a TDD aproach so is extremely easy to develop a new system:
 

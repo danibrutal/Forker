@@ -13,16 +13,17 @@ class FileStorage implements StorageInterface
 {
 
   private $hash_folder = "";
-  private $tasks_path = "/tmp/";
+  private $tasks_path  = "/tmp/";
 
   /**
    * @throws \Exception
    */
-  public function __construct()
+  public function __construct($tasks_path = "/tmp/")
   {
+    $this->tasks_path = $tasks_path;
     $this->hash_folder = sha1(time());
 
-    if (! is_dir($this->tasks_path . $this->hash_folder) 
+    if (! file_exists($this->tasks_path . $this->hash_folder) 
     AND ! mkdir($this->tasks_path . $this->hash_folder)) {
       throw new \Exception("Error creating folder in {$this->tasks_path}");
     }
@@ -61,15 +62,17 @@ class FileStorage implements StorageInterface
    */
   public function cleanUp()
   {
+    $ret = false;
+    
     foreach ($this->getStoredTasksFiles() as $storedTaskFile) {
       unlink($storedTaskFile);
     }
     
     if (is_dir($folderToClean = "{$this->tasks_path}{$this->hash_folder}")) {
-      return rmdir($folderToClean);
+      $ret = rmdir($folderToClean);
     }
 
-    return true;
+    return $ret;
   }
 
   /**
