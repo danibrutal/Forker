@@ -50,7 +50,8 @@ class FileStorage implements StorageInterface
     $reducedTasks = array();
    
     foreach ($this->getStoredTasksFiles() as $storedTaskFile) {
-      $key = end(explode("_", $storedTaskFile));
+      $tmp = explode("_", $storedTaskFile);
+      $key = end($tmp);
       $reducedTasks[$key] = file_get_contents($storedTaskFile);
     }
 
