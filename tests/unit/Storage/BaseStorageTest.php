@@ -9,8 +9,7 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {        
-        $this->storageSystem = $this->getSystemStorage();
-        $this->storeAllTasks();        
+        $this->storageSystem = $this->getSystemStorage();              
     }
 
     public function tearDown()
@@ -21,11 +20,15 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
     // to override
     abstract protected function getSystemStorage();
 
-    protected function storeAllTasks()
+    public function testWeCanGetASimpleStoredValue()
     {
-        foreach ($this->tasks as $keyTask => $task) {
-            $this->storageSystem->store($keyTask, $task);
-        }
+        $expectedValue  = 'value';
+        $nonExistingKey = 'uhh';
+
+        $this->storageSystem->store('foo', $expectedValue);
+        $this->assertEquals($expectedValue, $this->storageSystem->get('foo'));
+
+        $this->assertFalse($this->storageSystem->get($nonExistingKey));
     }
 
     /**
@@ -45,6 +48,7 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
     public function testIcanGetAllMyStoredTasks()
     {
 
+        $this->storeAllTasks();  
         $reducedTasks = $this->storageSystem->getStoredTasks();
         $expected = $this->tasks;
         
@@ -55,6 +59,7 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
 
     public function testWeCanCleanUpAllPreviousTasks()
     {
+        $this->storeAllTasks();  
         $reducedTasks = $this->storageSystem->getStoredTasks();
         
         $this->assertNotEmpty($reducedTasks);
@@ -62,4 +67,10 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
         $this->assertEmpty($this->storageSystem->getStoredTasks());
     }
 
+    protected function storeAllTasks()
+    {
+        foreach ($this->tasks as $keyTask => $task) {
+            $this->storageSystem->store($keyTask, $task);
+        }
+    }
 }

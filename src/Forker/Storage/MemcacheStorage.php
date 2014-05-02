@@ -64,6 +64,15 @@ class MemcacheStorage implements StorageInterface
 
   }
 
+  /**
+   * @param key
+   * @return value
+   */
+  public function get($key)
+  {
+    return $this->cache->get($key);
+  }
+
   public function getStoredTasks() 
   {
     $reduced = $this->getStoredTasksFromCache();

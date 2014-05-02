@@ -37,10 +37,24 @@ class FileStorage implements StorageInterface
    */
   public function store($key, $value)
   {
-    $filename = "{$this->tasks_path}{$this->hash_folder}/" . sha1($key) . '_' . $key;
+    $filename = "{$this->tasks_path}{$this->hash_folder}/" . $this->generateFilenameFromKey($key);
     return file_put_contents($filename, $value) !== FALSE;
   }
 
+  /**
+   * @param key
+   * @return value
+   */
+  public function get($key)
+  {
+    $filename = "{$this->tasks_path}{$this->hash_folder}/" . $this->generateFilenameFromKey($key);
+
+    if (is_file($filename)) {
+      return file_get_contents($filename);
+    }
+
+    return false;
+  }
 
   /**
    * @return array $tasks
@@ -50,8 +64,7 @@ class FileStorage implements StorageInterface
     $reducedTasks = array();
    
     foreach ($this->getStoredTasksFiles() as $storedTaskFile) {
-      $tmp = explode("_", $storedTaskFile);
-      $key = end($tmp);
+      $key = $this->getKeyFromFilename($storedTaskFile);
       $reducedTasks[$key] = file_get_contents($storedTaskFile);
     }
 
@@ -96,5 +109,16 @@ class FileStorage implements StorageInterface
     }
     
     return $storedFiles;
+  }
+
+  private function generateFilenameFromKey($key)
+  {
+    return sha1($key) . "_" . $key;
+  }
+
+  private function getKeyFromFilename($filename)
+  {
+    $tmp = explode("_", $filename);
+    return end($tmp);
   }
 }

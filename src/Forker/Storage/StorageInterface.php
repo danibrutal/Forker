@@ -13,6 +13,12 @@ interface StorageInterface
   public function store($key, $value);
 
   /**
+   * @param key
+   * @return value | false
+   */
+  public function get($key);
+
+  /**
    * @return array $tasks
    */
   public function getStoredTasks();

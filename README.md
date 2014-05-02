@@ -1,6 +1,7 @@
 Forker
 ------------
 [![Build Status](https://travis-ci.org/danibrutal/Forker.svg?branch=master)](https://travis-ci.org/danibrutal/Forker)
+[![Latest Stable Version](https://poser.pugx.org/danibrutal/forker/v/stable.png)](https://packagist.org/packages/danibrutal/forker)
 
 ## Synopsis
 

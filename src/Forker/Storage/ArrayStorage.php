@@ -25,6 +25,17 @@ class ArrayStorage implements StorageInterface
   }
 
   /**
+   * @param key
+   * @return value
+   */
+  public function get($key)
+  {
+    return isset($this->reducedTasks[$key]) 
+    ? $this->reducedTasks[$key]
+    : FALSE;
+  }
+
+  /**
    * @return array $tasks
    */
   public function getStoredTasks() 
