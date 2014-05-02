@@ -27,10 +27,10 @@ $storageSystem = new MemcacheStorage;
 
 $numberOfSubTasks = 3;
 
-$mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
+$forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 // My job here is [[1,2] , [3,4]] ,[[5,6],[7,8]]...not precisely in this order
-$mpr->map(function($myJobs) {
+$forker->map(function($myJobs) {
   $total = 0;
 
   foreach($myJobs as $job) {
@@ -40,7 +40,7 @@ $mpr->map(function($myJobs) {
   return $total;
 });
 
-$myResult = array_sum($mpr->fetch());
+$myResult = array_sum($forker->fetch());
 
 $n = 12;
 $expected = ($n * ($n+1)) / 2;

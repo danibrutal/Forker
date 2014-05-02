@@ -26,7 +26,7 @@ $myTasks = array(
 $storageSystem = new MemcacheStorage;
 $numberOfSubTasks = 6;
 
-$mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
+$forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 // This is called 3 times before doing reduce method
 // myJob here looks like this :
@@ -36,12 +36,12 @@ $mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 $time_start = microtime(true);
 
-$mpr->map(function($myJob) {
+$forker->map(function($myJob) {
   echo 'Retrieving weather in ' . key($myJob) . "\n";
   return file_get_contents(current($myJob));
 });
 
-$allCitiesWeather = $mpr->fetch();
+$allCitiesWeather = $forker->fetch();
 
 $time_end = microtime(true);
 $time = $time_end - $time_start;

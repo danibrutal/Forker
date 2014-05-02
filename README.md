@@ -37,19 +37,17 @@ $myTasks = array(
 $storageSystem = new FileStorage;
 $numberOfSubTasks = 6;
 
-$mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
+$forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 $time_start = microtime(true);
 
 // $myJob = 'madrid'=> 'http://api.openweathermap.org/data/2.5/weather?q=madrid&mode=xml'
-$mpr->map(function($myJob) {
+$forker->map(function($myJob) {
   echo 'Retrieving weather in ' . key($myJob) . "\n";
   return file_get_contents(current($myJob));
 });
 
-$mpr->reduce(function($allmytasks) use(& $allCitiesWeather) {
-  $allCitiesWeather = $allmytasks;
-});
+$allCitiesWeather = $forker->fetch();
 
 var_dump($allCitiesWeather);
 ```

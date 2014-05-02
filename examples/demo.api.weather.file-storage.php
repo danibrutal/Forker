@@ -26,16 +26,16 @@ $myTasks = array(
 $storageSystem = new FileStorage;
 $numberOfSubTasks = 6;
 
-$mpr = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
+$forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 $time_start = microtime(true);
 
-$mpr->map(function($myJob) {
+$forker->map(function($myJob) {
   echo 'Retrieving weather in ' . key($myJob) . "\n";
   return file_get_contents(current($myJob));
 });
 
-$allCitiesWeather = $mpr->fetch();
+$allCitiesWeather = $forker->fetch();
 
 $time_end = microtime(true);
 $time = $time_end - $time_start;
