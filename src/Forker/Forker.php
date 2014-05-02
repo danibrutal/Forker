@@ -73,13 +73,15 @@ class Forker
     $this->numWorkers++;
                            
     switch ($this->getChildProces()) {
+      
       case self::FORKING_ERROR:
         throw new ForkingErrorException("Error Forking process", 1);
         break;
 
       case self::CHILD_PROCESS:
           $childTask = $this->giveMeMyTask($this->numWorkers - 1, $this->numberOfTasks);
-          $this->child($childTask);
+
+          $this->child($childTask, $this->mapFn);
         break;        
     }
 
@@ -99,18 +101,36 @@ class Forker
 
   /**
    * @param array $myTask
+   * @param \Closure $map
    */
-  protected function child(array $myTask)
+  protected function child(array $myTasks, \Closure $map)
   {          
-    $reducedTask = call_user_func($this->mapFn, $myTask);
 
-    $this->lockIt();
+    foreach($myTasks as $taskKey => $myTask) {
 
-    $this->storageSystem->store(key($myTask), $reducedTask);            
-    
-    $this->unLock();
+      $stored = array();
+
+      $map($myTask, $taskKey, function($key, $value) use(& $stored) {
+        $stored[$key] = $value;
+      });
+
+      // todo: validate entry
+      if (! empty($stored)) {
+        $this->storeChildTask(key($stored), current($stored));
+      }
+
+    }
 
     $this->imDoneHere($this->numWorkers); 
+  }
+
+  private function storeChildTask($key, $value)
+  {
+    $this->lockIt();
+
+    $this->storageSystem->store($key, $value);            
+    
+    $this->unLock();
   }
 
   /**

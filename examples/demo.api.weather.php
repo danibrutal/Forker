@@ -28,17 +28,13 @@ $numberOfSubTasks = 6;
 
 $forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
-// This is called 3 times before doing reduce method
-// myJob here looks like this :
-// array(1) {
-//    ["madrid"]=>"http://api.openweathermap.org/data/2.5/weather?q=Madrid&mode=xml"
-// }
-
 $time_start = microtime(true);
 
-$forker->map(function($myJob) {
-  echo 'Retrieving weather in ' . key($myJob) . "\n";
-  return file_get_contents(current($myJob));
+$forker->map(function($url, $city, $emit) {
+  echo "Retrieving weather in $city\n";
+  
+  $contents = file_get_contents($url);
+  $emit($city, $contents);
 });
 
 $allCitiesWeather = $forker->fetch();
