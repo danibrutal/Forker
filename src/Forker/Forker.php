@@ -80,7 +80,6 @@ class Forker
 
       case self::CHILD_PROCESS:
           $childTask = $this->giveMeMyTask($this->numWorkers - 1, $this->numberOfTasks);
-
           $this->child($childTask, $this->mapFn);
         break;        
     }
@@ -107,16 +106,18 @@ class Forker
   {          
 
     foreach($myTasks as $taskKey => $myTask) {
+      $emited = array();
 
-      $stored = array();
-
-      $map($myTask, $taskKey, function($key, $value) use(& $stored) {
-        $stored[$key] = $value;
+      $map($myTask, $taskKey, function($key, $value) use(& $emited) {
+        $emited[] = array($key, $value);
       });
 
       // todo: validate entry
-      if (! empty($stored)) {
-        $this->storeChildTask(key($stored), current($stored));
+      if (! empty($emited)) {
+        
+        foreach($emited as $processed) {          
+          $this->storeChildTask($processed[0], $processed[1]);        
+        }        
       }
 
     }

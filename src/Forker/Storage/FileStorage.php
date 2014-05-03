@@ -11,9 +11,10 @@ namespace Forker\Storage;
  */
 class FileStorage implements StorageInterface
 {
+  const VALUE_SEPARATOR = "||";
 
-  private $hash_folder = "";
-  private $tasks_path  = "/tmp/";
+  private $hash_folder  = "";
+  private $tasks_path   = "/tmp/";
 
   /**
    * @throws \Exception
@@ -38,7 +39,12 @@ class FileStorage implements StorageInterface
   public function store($key, $value)
   {
     $filename = "{$this->tasks_path}{$this->hash_folder}/" . $this->generateFilenameFromKey($key);
-    return file_put_contents($filename, $value) !== FALSE;
+    
+    if (is_file($filename)) {      
+      return file_put_contents($filename,self::VALUE_SEPARATOR . $value , FILE_APPEND) !== FALSE;
+    }
+      
+    return file_put_contents($filename, $value , FILE_APPEND) !== FALSE;
   }
 
   /**
@@ -50,7 +56,14 @@ class FileStorage implements StorageInterface
     $filename = "{$this->tasks_path}{$this->hash_folder}/" . $this->generateFilenameFromKey($key);
 
     if (is_file($filename)) {
-      return file_get_contents($filename);
+      $contents =  file_get_contents($filename);
+
+      // If there are more values, we return array
+      if (strpos($contents, self::VALUE_SEPARATOR) !== false) {
+        $contents = explode(self::VALUE_SEPARATOR, $contents);
+      }
+
+      return $contents;
     }
 
     return false;
@@ -65,7 +78,7 @@ class FileStorage implements StorageInterface
    
     foreach ($this->getStoredTasksFiles() as $storedTaskFile) {
       $key = $this->getKeyFromFilename($storedTaskFile);
-      $reducedTasks[$key] = file_get_contents($storedTaskFile);
+      $reducedTasks[$key] = $this->get($key);
     }
 
     return $reducedTasks;

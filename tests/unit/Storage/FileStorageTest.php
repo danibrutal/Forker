@@ -23,5 +23,23 @@ class FileStorageTest extends BaseStorageTest
           vfsStream::url('myTasksDir/')    
       );        
   }
+
+  /**
+   * Useful if we want to store several values for each key
+   */
+  public function testWeCanAddValuesToAStoredKey()
+  {
+      $value1  = 'value1';
+      $value2  = 'value2';
+      $value3  = 'value3';
+
+      $expectedValue = array($value1, $value2, $value3);
+      
+      $this->storageSystem->store('foo', $value1);
+      $this->storageSystem->store('foo', $value2);
+      $this->storageSystem->store('foo', $value3);
+
+      $this->assertEquals($expectedValue,  $this->storageSystem->get('foo') );
+  }
   
 }

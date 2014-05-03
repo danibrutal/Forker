@@ -46,8 +46,7 @@ Abstract class BaseStorageTest extends PHPUnit_Framework_TestCase
      * It should be a way to retrieve all our stored tasks
      */
     public function testIcanGetAllMyStoredTasks()
-    {
-
+    {   
         $this->storeAllTasks();  
         $reducedTasks = $this->storageSystem->getStoredTasks();
         $expected = $this->tasks;
