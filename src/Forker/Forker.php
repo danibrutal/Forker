@@ -108,7 +108,7 @@ class Forker
     foreach($myTasks as $taskKey => $myTask) {
       $emited = array();
 
-      $map($myTask, $taskKey, function($key, $value) use(& $emited) {
+      $map($taskKey, $myTask, function($key, $value) use(& $emited) {
         $emited[] = array($key, $value);
       });
 

@@ -40,7 +40,7 @@ $numberOfSubTasks = 6;
 
 $forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
-$forker->map(function($url, $city, $emit) {
+$forker->map(function($city, $url,  $emit) {
   echo "Retrieving weather in $city\n";
   
   $contents = file_get_contents($url);
@@ -82,7 +82,7 @@ We follow here a TDD aproach so is extremely easy to develop a new system:
 
 1º Create your own storage system following the StorageSystem interface's signature:
 ```php
-  /**
+/**
    * @param key
    * @param value
    * @return bool
@@ -90,9 +90,15 @@ We follow here a TDD aproach so is extremely easy to develop a new system:
   public function store($key, $value);
 
   /**
+   * @param key
+   * @return value | false
+   */
+  public function get($key);
+
+  /**
    * @return array $tasks
    */
-  public function getReducedTasks();
+  public function getStoredTasks();
 
   /**
    * @return bool
@@ -117,16 +123,20 @@ Hard, huh?
 
 3º Then, type phpunit so you can see 3 errors to solve:
 ```
-There were 3 failures:
+There were 4 failures:
 
-1) ArrayStorageTest::testWeCanSToreValues
-Failed asserting that false is true.
+1) ArrayStorageTest::testWeCanGetASimpleStoredValue
+Failed asserting that null matches expected 'value'.
 
-2) ArrayStorageTest::testIcanGetAllMyReducedTasks
+2) ArrayStorageTest::testWeCanSToreValues
+Failed asserting that null is true.
+
+3) ArrayStorageTest::testIcanGetAllMyStoredTasks
 Failed asserting that a NULL is not empty.
 
-3) ArrayStorageTest::testWeCanCleanUpAllPreviousTasks
+4) ArrayStorageTest::testWeCanCleanUpAllPreviousTasks
 Failed asserting that a NULL is not empty.
+
 ```
 4º Just solve the errors. Create your implementation and you are done!
 Easy and funny :)
