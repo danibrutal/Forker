@@ -8,6 +8,8 @@
 
 namespace Forker;
 
+use Forker\Storage\StorageInterface;
+
 /**
  * Class ChilProcess
  * @package Forker
@@ -20,24 +22,68 @@ class ChilProcess
     private $tasks;
 
     /**
-     * @var callable
+     * @var StorageInterface $storageSystem
      */
-    private $onRunTask;
+    private $storageSystem = null;
+
+    // Semaphore
+    private $semaphore = null;
 
     /**
      * @param array $tasks
+     * @param StorageInterface $storageSystem
+     * @param Semaphore $sem
      */
-    public function __construct(array $tasks)
+    public function __construct(array $tasks, StorageInterface $storageSystem, Semaphore $sem)
     {
         $this->tasks = $tasks;
+
+        $this->storageSystem = $storageSystem;
+
+        $this->semaphore = $sem;
     }
 
     /**
-     * @param null $callback
+     * @param callable $callback
      */
     public function run($callback = null)
     {
+        foreach($this->tasks as $taskKey => $myTask) {
+            $emited = array();
 
+            call_user_func($callback, $taskKey, $myTask, function($key, $value) use(& $emited) {
+                $emited[] = array($key, $value);
+            });
+
+            // todo: validate entry
+            if (! empty($emited)) {
+
+                foreach($emited as $processed) {
+                    $this->storeChildTask($processed[0], $processed[1]);
+                }
+            }
+
+        }
+
+        $this->imDoneHere();
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    private function storeChildTask($key, $value)
+    {
+        $this->semaphore->lock();
+
+        $this->storageSystem->store($key, $value);
+
+        $this->semaphore->unLock();
+    }
+
+    private function imDoneHere()
+    {
+        exit(0);
     }
 
 } 

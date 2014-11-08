@@ -13,186 +13,136 @@ use Forker\ChilProcess as ChildProcess;
 class Forker 
 {
 
-  const FORKING_ERROR = -1;
-  const CHILD_PROCESS = 0;
+    const FORKING_ERROR = -1;
+    const CHILD_PROCESS = 0;
 
-  /**
-   * @var StorageInterface $storageSystem
-   */
-  private $storageSystem = null;
+    /**
+     * @var StorageInterface $storageSystem
+     */
+    private $storageSystem = null;
 
-  private $tasks = array();
-  private $numWorkers    = 0;
+    private $tasks = array();
+    private $numWorkers    = 0;
 
-  // Semaphores
-  private $semKey        = '123456';
-  private $semResource   = null;
+    // Semaphore
+    private $semaphore = null;
 
-  // @Closure $map fn
-  private $mapFn;
-  private $numberOfTasks = 3;
+    // @Closure $map fn
+    private $mapFn;
+    private $numberOfTasks = 3;
 
-  /**
-   * @param StorageInterface $storeSystem
-   * @param array $tasks 
-   * @param int $numberOfSubTasks 
-   */
-  public function __construct(StorageInterface $storeSystem, array $tasks, $numberOfSubTasks = 3) 
-  {
-    $this->storageSystem = $storeSystem;
-    $this->tasks = $tasks;
-    
-    $this->numberOfTasks = $this->calculateNumberOfWorkers(
-      count($this->tasks), 
-      $numberOfSubTasks
-    );
-  }
 
-  /**
-   * @param \Clousure $map
-   * @return Forker $this
-   */
-  public function fork(\Closure $map)
-  {
-    $this->mapFn = $map;
-    $this->splitTasks();
-    
-    $this->waitForMyChildren();
-    return $this;
-  }
+    /**
+     * @param StorageInterface $storeSystem
+     * @param array $tasks
+     * @param int $numberOfSubTasks
+     */
+    public function __construct(StorageInterface $storageSystem, array $tasks, $numberOfSubTasks = 3)
+    {
+        $this->storageSystem = $storageSystem;
+        $this->tasks = $tasks;
 
-  /**
-   * @return array
-   */
-  public function fetch() 
-  {
-    return $this->storageSystem->getStoredTasks();
-  }
+        $this->numberOfTasks = $this->calculateNumberOfWorkers(
+            count($this->tasks),
+            $numberOfSubTasks
+        );
 
-  /**
-   * Copy the process recursively for each sub-task
-   *
-   */
-  private function splitTasks() 
-  {
-
-    $this->numWorkers++;
-                           
-    switch ($this->getChildProces()) {
-      
-      case self::FORKING_ERROR:
-        throw new ForkingErrorException("Error Forking process", 1);
-        break;
-
-      case self::CHILD_PROCESS:
-          $childTask = $this->giveMeMyTask($this->numWorkers - 1, $this->numberOfTasks);
-
-          $childProcess = new ChildProcess($childTask);
-          $childProcess->run( $this->mapFn );
-
-          $this->child($childTask, $this->mapFn);
-        break;        
+        // inject dependency
+        $this->semaphore = new Semaphore();
     }
 
-    if ($this->numWorkers < $this->numberOfTasks) {
-      $this->splitTasks();
-    } 
 
-  }
+    /**
+     * @param \Clousure $map
+     * @return Forker $this
+     */
+    public function fork(\Closure $map)
+    {
+        $this->mapFn = $map;
+        $this->splitTasks();
 
-  /**
-   * @return int
-   */
-  protected function getChildProces()
-  {
-    return pcntl_fork();
-  }
+        $this->waitForMyChildren();
+        return $this;
+    }
 
-  /**
-   * @param array $myTask
-   * @param \Closure $map
-   */
-  protected function child(array $myTasks, \Closure $map)
-  {          
+    /**
+     * @return array
+     */
+    public function fetch()
+    {
+        return $this->storageSystem->getStoredTasks();
+    }
 
-    foreach($myTasks as $taskKey => $myTask) {
-      $emited = array();
+    /**
+     * Copy the process recursively for each sub-task
+     *
+     */
+    private function splitTasks()
+    {
 
-      call_user_func($map, $taskKey, $myTask, function($key, $value) use(& $emited) {
-        $emited[] = array($key, $value);
-      });
+        $this->numWorkers++;
 
-      // todo: validate entry
-      if (! empty($emited)) {
-        
-        foreach($emited as $processed) {          
-          $this->storeChildTask($processed[0], $processed[1]);        
-        }        
-      }
+        switch ($this->getChildProces()) {
+
+            case self::FORKING_ERROR:
+                throw new ForkingErrorException("Error Forking process", 1);
+                break;
+
+            case self::CHILD_PROCESS:
+                $childTask = $this->giveMeMyTask($this->numWorkers - 1, $this->numberOfTasks);
+
+                $childProcess = new ChildProcess($childTask, $this->storageSystem, $this->semaphore);
+                $childProcess->run( $this->mapFn );
+                break;
+        }
+
+        if ($this->numWorkers < $this->numberOfTasks) {
+            $this->splitTasks();
+        }
 
     }
 
-    $this->imDoneHere($this->numWorkers); 
-  }
-
-  private function storeChildTask($key, $value)
-  {
-    $this->lockIt();
-
-    $this->storageSystem->store($key, $value);            
-    
-    $this->unLock();
-  }
-
-  /**
-   * We calculate here the next divisor
-   * @return int number of workers o subprocess
-   */
-  public function calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
-  {
-    $n = $numberOfSubTaks;
-    
-    if ($numberOfSubTaks > $numTasks) {
-      $n = $numTasks;
-    }elseif (($numTasks % $numberOfSubTaks) !== 0) {
-      $n = $this->calculateNumberOfWorkers($numTasks, $numberOfSubTaks + 1);
+    /**
+     * @return int
+     */
+    protected function getChildProces()
+    {
+        return pcntl_fork();
     }
 
-    return $n;
-  }
+    /**
+     * We calculate here the next divisor
+     * @return int number of workers o subprocess
+     */
+    public function calculateNumberOfWorkers($numTasks, $numberOfSubTaks)
+    {
+        $n = $numberOfSubTaks;
 
-  /**
-   * @param int $indexTask
-   * @param int $numberOfTasks
-   * @return array $task
-   */
-  public function giveMeMyTask($indexTask, $numberOfTasks) 
-  {
-    $taskLength = floor(count($this->tasks) / $numberOfTasks);
-    $offset     = $indexTask * $taskLength;
-    
-    return array_slice($this->tasks, $offset, $taskLength, true); 
-  }
+        if ($numberOfSubTaks > $numTasks) {
+            $n = $numTasks;
+        }elseif (($numTasks % $numberOfSubTaks) !== 0) {
+            $n = $this->calculateNumberOfWorkers($numTasks, $numberOfSubTaks + 1);
+        }
 
-  private function lockIt()
-  {
-    $this->semResource = sem_get($this->semKey);
-    sem_acquire($this->semResource);
-  }
+        return $n;
+    }
 
-  private function unLock()
-  {
-    sem_release($this->semResource); 
-  }
+    /**
+     * @param int $indexTask
+     * @param int $numberOfTasks
+     * @return array $task
+     */
+    public function giveMeMyTask($indexTask, $numberOfTasks)
+    {
+        $taskLength = floor(count($this->tasks) / $numberOfTasks);
+        $offset     = $indexTask * $taskLength;
 
-  private function waitForMyChildren() 
-  {
-    while (pcntl_waitpid(0, $status) != -1);
-  }
+        return array_slice($this->tasks, $offset, $taskLength, true);
+    }
 
-  private function imDoneHere() 
-  {
-    exit;
-  }
+    private function waitForMyChildren()
+    {
+        while (pcntl_waitpid(0, $status) != -1);
+    }
 
 }
