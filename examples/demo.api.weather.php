@@ -30,7 +30,7 @@ $forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 $time_start = microtime(true);
 
-$forker->map(function($city, $url, $emit) {
+$forker->fork(function($city, $url, $emit) {
   echo "Retrieving weather in $city\n";
   
   $contents = file_get_contents($url);

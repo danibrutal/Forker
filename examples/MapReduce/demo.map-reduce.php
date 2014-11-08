@@ -26,7 +26,7 @@ $forker = new Forker(new FileStorage, $myTasks, $numberOfSubTasks);
 $path   = dirname(__FILE__); 
 
 // MAP
-$forker->map(function($key, $fileName, $emit) use($path){
+$forker->fork(function($key, $fileName, $emit) use($path){
   
   $file_to_get = "$path/$fileName";
   $content     = file_get_contents($file_to_get);
@@ -44,7 +44,7 @@ $mapped = $forker->fetch();
 // since we don't know the total number
 $forker = new Forker(new FileStorage('/tmp/reduced-words'), $mapped);
 
-$forker->map(function($word, $counts, $emit) {
+$forker->fork(function($word, $counts, $emit) {
   $emit($word, is_array($counts) ? count($counts) : 1);
 });
 

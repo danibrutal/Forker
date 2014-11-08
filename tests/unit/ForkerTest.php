@@ -37,7 +37,7 @@ class ForkerTest extends PHPUnit_Framework_TestCase
                  ->method('getChildProces')
                  ->will($this->returnValue($forkError));
     
-    $mockForker->map(function($foo) {});
+    $mockForker->fork(function($foo) {});
   }
 
  /**
@@ -79,7 +79,7 @@ class ForkerTest extends PHPUnit_Framework_TestCase
                  ->method('child')
                  ->with(array($key=>$value));
 
-    $mockForker->map(function($foo) {});
+    $mockForker->fork(function($foo) {});
   }
 
   public function testWeCreateANewProcessForEachSubTask()
@@ -97,7 +97,7 @@ class ForkerTest extends PHPUnit_Framework_TestCase
     $mockForker->expects($this->exactly(4))
                  ->method('getChildProces')
                  ->will($this->returnValue($childProcessValue));
-    $mockForker->map(function($foo) {});
+    $mockForker->fork(function($foo) {});
   }
 
   public function testWeCanCalculateSafeNumberOfWorkers()

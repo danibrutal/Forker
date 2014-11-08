@@ -4,6 +4,12 @@ namespace Forker;
 use Forker\Storage\StorageInterface;
 use Forker\Exception\ForkingErrorException;
 
+use Forker\ChilProcess as ChildProcess;
+
+/**
+ * Class Forker
+ * @package Forker
+ */
 class Forker 
 {
 
@@ -46,7 +52,7 @@ class Forker
    * @param \Clousure $map
    * @return Forker $this
    */
-  public function map(\Closure $map) 
+  public function fork(\Closure $map)
   {
     $this->mapFn = $map;
     $this->splitTasks();
@@ -80,6 +86,10 @@ class Forker
 
       case self::CHILD_PROCESS:
           $childTask = $this->giveMeMyTask($this->numWorkers - 1, $this->numberOfTasks);
+
+          $childProcess = new ChildProcess($childTask);
+          $childProcess->run( $this->mapFn );
+
           $this->child($childTask, $this->mapFn);
         break;        
     }
@@ -108,7 +118,7 @@ class Forker
     foreach($myTasks as $taskKey => $myTask) {
       $emited = array();
 
-      $map($taskKey, $myTask, function($key, $value) use(& $emited) {
+      call_user_func($map, $taskKey, $myTask, function($key, $value) use(& $emited) {
         $emited[] = array($key, $value);
       });
 

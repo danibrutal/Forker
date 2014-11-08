@@ -1,6 +1,7 @@
 #API doc Folder
 API
 # https://github.com/github/gitignore
+index.php
 
 # build - files generate with tools for static PHP code analyses
 build

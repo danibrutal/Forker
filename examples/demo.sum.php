@@ -30,7 +30,7 @@ $numberOfSubTasks = 3;
 $forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 
 // My job here is [[1,2] , [3,4]] ,[[5,6],[7,8]]...not precisely in this order
-$forker->map(function($key, $myJob, $emit) {
+$forker->fork(function($key, $myJob, $emit) {
 
   $total = 0;
 
