@@ -10,7 +10,7 @@ use Forker\ChilProcess as ChildProcess;
  * Class Forker
  * @package Forker
  */
-class Forker 
+class Forker
 {
 
     const FORKING_ERROR = -1;

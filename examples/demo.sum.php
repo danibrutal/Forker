@@ -3,7 +3,7 @@
  * [Forker]
  *
  * Example: Sum of 10 firsts numbers in parallel
- * Usage : php demo.sum.php 
+ * Usage : php demo.sum.php
  * Storage: Memcache
  **************************************************/
 require 'vendor/autoload.php';
@@ -14,12 +14,12 @@ use Forker\Storage\MemcacheStorage;
 $myResult = 0;
 
 $myTasks  = array(
-  0 => array(1,2),
-  1 => array(3,4),
-  2 => array(5,6),
-  3 => array(7,8),
-  4 => array(9,10),
-  5 => array(11,12),
+    0 => array(1,2),
+    1 => array(3,4),
+    2 => array(5,6),
+    3 => array(7,8),
+    4 => array(9,10),
+    5 => array(11,12),
 );
 
 // a way to keep our data
@@ -32,13 +32,13 @@ $forker = new Forker($storageSystem, $myTasks, $numberOfSubTasks);
 // My job here is [[1,2] , [3,4]] ,[[5,6],[7,8]]...not precisely in this order
 $forker->fork(function($key, $myJob, $emit) {
 
-  $total = 0;
+    $total = 0;
 
-  foreach($myJob as $job) {
-    $total += $job;
-  }
+    foreach($myJob as $job) {
+        $total += $job;
+    }
 
-  $emit($key, $total);
+    $emit($key, $total);
 });
 
 $myResult = array_sum($forker->fetch());

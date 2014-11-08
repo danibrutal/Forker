@@ -9,47 +9,47 @@ namespace Forker\Storage;
 class ArrayStorage implements StorageInterface
 {
 
-  private $tasks_db = array();
-  private $reducedTasks = array();
+    private $tasks_db = array();
+    private $reducedTasks = array();
 
-  /**
-   * @param key
-   * @param value
-   * @return bool
-   */
-  public function store($key, $value)
-  {
-    $this->reducedTasks[$key] = $value;
+    /**
+     * @param key
+     * @param value
+     * @return bool
+     */
+    public function store($key, $value)
+    {
+        $this->reducedTasks[$key] = $value;
 
-    return array_key_exists($key, $this->reducedTasks);
-  }
+        return array_key_exists($key, $this->reducedTasks);
+    }
 
-  /**
-   * @param key
-   * @return value
-   */
-  public function get($key)
-  {
-    return isset($this->reducedTasks[$key]) 
-    ? $this->reducedTasks[$key]
-    : FALSE;
-  }
+    /**
+     * @param key
+     * @return value
+     */
+    public function get($key)
+    {
+        return isset($this->reducedTasks[$key])
+            ? $this->reducedTasks[$key]
+            : FALSE;
+    }
 
-  /**
-   * @return array $tasks
-   */
-  public function getStoredTasks() 
-  {
-    return $this->reducedTasks;
-  }
+    /**
+     * @return array $tasks
+     */
+    public function getStoredTasks()
+    {
+        return $this->reducedTasks;
+    }
 
-  /**
-   * @return bool
-   */
-  public function cleanUp()
-  {
-    $this->reducedTasks = array();
+    /**
+     * @return bool
+     */
+    public function cleanUp()
+    {
+        $this->reducedTasks = array();
 
-    return count($this->reducedTasks) === 0; 
-  }
+        return count($this->reducedTasks) === 0;
+    }
 }
