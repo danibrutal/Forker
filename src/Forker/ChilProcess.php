@@ -62,10 +62,7 @@ class ChilProcess
                     $this->storeChildTask($processed[0], $processed[1]);
                 }
             }
-
         }
-
-        $this->imDoneHere();
     }
 
     /**
@@ -79,6 +76,11 @@ class ChilProcess
         $this->storageSystem->store($key, $value);
 
         $this->semaphore->unLock();
+    }
+
+    public function __destruct()
+    {
+        $this->imDoneHere();
     }
 
     private function imDoneHere()

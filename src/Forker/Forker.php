@@ -21,6 +21,8 @@ class Forker
      */
     private $storageSystem = null;
 
+    private $childs = array();
+
     private $tasks = array();
     private $numWorkers    = 0;
 
@@ -30,6 +32,8 @@ class Forker
     // @Closure $map fn
     private $mapFn;
     private $numberOfTasks = 3;
+
+    private $timeout = 0;
 
 
     /**
@@ -51,14 +55,40 @@ class Forker
         $this->semaphore = new Semaphore();
     }
 
+    /**
+     * Sets a timeout for all child process
+     * @param $seconds
+     * @return $this
+     */
+    public function timeOut($seconds)
+    {
+        $this->timeout = $seconds;
+
+        if ($this->timeout > 0 ) {
+            declare(ticks = 1);
+            new Alarm($this->timeout, array($this, 'wakeUpLazyChildren'));
+        }
+
+        return $this;
+    }
 
     /**
-     * @param \Clousure $map
+     * @param $signo
+     */
+    public function wakeUpLazyChildren($signo)
+    {
+        foreach($this->childs as $pid => $forked) {
+            posix_kill($pid, SIGTERM);
+        }
+    }
+
+    /**
+     * @param \Clousure $onTask
      * @return Forker $this
      */
-    public function fork(\Closure $map)
+    public function fork(\Closure $onTask)
     {
-        $this->mapFn = $map;
+        $this->mapFn = $onTask;
         $this->splitTasks();
 
         $this->waitForMyChildren();
@@ -82,7 +112,7 @@ class Forker
 
         $this->numWorkers++;
 
-        switch ($this->getChildProces()) {
+        switch ($pid = $this->getChildProces()) {
 
             case self::FORKING_ERROR:
                 throw new ForkingErrorException("Error Forking process", 1);
@@ -93,6 +123,11 @@ class Forker
 
                 $childProcess = new ChildProcess($childTask, $this->storageSystem, $this->semaphore);
                 $childProcess->run( $this->mapFn );
+                unset($childProcess);
+                break;
+            default: // parent time
+
+                $this->childs[$pid] = true;
                 break;
         }
 
@@ -140,9 +175,14 @@ class Forker
         return array_slice($this->tasks, $offset, $taskLength, true);
     }
 
+    /**
+     * waits for all forked processes
+     */
     private function waitForMyChildren()
     {
-        while (pcntl_waitpid(0, $status) != -1);
+        while (($pid = pcntl_wait($status)) !== -1) {
+            unset($this->childs[$pid]);
+        }
     }
 
 }
